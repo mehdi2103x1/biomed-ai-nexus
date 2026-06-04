@@ -1,8 +1,8 @@
 """
 pages.home
 ==========
-Landing page: hero banner, project objectives, dataset KPI cards, a workflow
-diagram (built in pure HTML/CSS) and liver-disease statistics.
+Landing page: hero banner, a one-line description, dataset KPI cards and the
+application workflow diagram (built in pure HTML/CSS).
 """
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ import streamlit as st
 
 from config import APP_SUBTITLE, APP_TITLE
 from utils.preprocessing import dataset_overview
-from utils.styles import hero, pills, render_kpis
+from utils.styles import hero, render_kpis, section
 
 
 def _workflow_diagram() -> None:
@@ -54,16 +54,15 @@ def render(ctx: dict) -> None:
     hero(f"{APP_TITLE}", f"{APP_SUBTITLE} — an interactive biomedical AI platform")
 
     st.markdown(
-        "**BioMed AI Nexus** predicts liver disease from routine blood-panel "
-        "biomarkers and patient data using five Machine-Learning models, adds a "
-        "Deep-Learning image-analysis demonstration, and explains every decision "
-        "with interactive visualisations."
+        "Predicts liver disease from routine blood-panel biomarkers and patient "
+        "data using five Machine-Learning models, with a Deep-Learning "
+        "image-analysis module and explainable, interactive results."
     )
 
     # --- Dataset KPI cards ------------------------------------------------ #
     df = ctx["dataset"]
     ov = dataset_overview(df)
-    st.markdown("#### 📈 Dataset at a glance — Indian Liver Patient Dataset (ILPD)")
+    section("Dataset overview — Indian Liver Patient Dataset (ILPD)")
     render_kpis([
         {"icon": "🧬", "value": f"{ov['n_rows']}", "label": "Patient records"},
         {"icon": "🩸", "value": f"{ov['n_disease']}", "label": "Liver disease cases",
@@ -71,56 +70,14 @@ def render(ctx: dict) -> None:
         {"icon": "✅", "value": f"{ov['n_healthy']}", "label": "Healthy controls"},
         {"icon": "🔢", "value": f"{ov['n_features']}", "label": "Clinical features"},
     ])
-
     st.write("")
     render_kpis([
         {"icon": "👤", "value": f"{ov['mean_age']:.0f} yr", "label": "Mean age"},
-        {"icon": "♂️", "value": f"{ov['pct_male']:.0%}", "label": "Male proportion"},
+        {"icon": "⚧", "value": f"{ov['pct_male']:.0%}", "label": "Male proportion"},
         {"icon": "🧪", "value": f"{ov['missing_values']}", "label": "Missing values handled"},
         {"icon": "🤖", "value": "5 + CNN", "label": "Models available"},
     ])
 
-    # --- Objectives ------------------------------------------------------- #
-    st.markdown("#### 🎯 Project objectives")
-    c1, c2 = st.columns(2)
-    with c1:
-        st.markdown(
-            "- Predict liver disease from **tabular** biomarkers\n"
-            "- Provide a **CNN image-analysis** demonstration with Grad-CAM\n"
-            "- **Train & compare** Decision Tree, Random Forest, Logistic "
-            "Regression, SVM and XGBoost"
-        )
-    with c2:
-        st.markdown(
-            "- Display **interactive dashboards** and KPIs\n"
-            "- Maintain a **prediction history** (CSV)\n"
-            "- **Explain** predictions (feature importance, Grad-CAM, PDF report)"
-        )
-
     # --- Workflow --------------------------------------------------------- #
-    st.markdown("#### 🔄 Application workflow")
+    section("Application workflow")
     _workflow_diagram()
-
-    # --- Liver disease context ------------------------------------------- #
-    st.write("")
-    st.markdown("#### 🩺 Why liver disease screening matters")
-    g1, g2, g3 = st.columns(3)
-    with g1:
-        st.markdown("<div class='panel'><b>~2 million</b><br>deaths per year worldwide "
-                    "are attributable to liver disease.</div>", unsafe_allow_html=True)
-    with g2:
-        st.markdown("<div class='panel'><b>Often silent</b><br>early-stage liver damage "
-                    "is frequently asymptomatic — biomarkers reveal it first.</div>",
-                    unsafe_allow_html=True)
-    with g3:
-        st.markdown("<div class='panel'><b>Routine bloods</b><br>bilirubin, enzymes and "
-                    "proteins enable low-cost, early screening.</div>",
-                    unsafe_allow_html=True)
-
-    st.write("")
-    st.markdown("**Tech stack**")
-    pills(["Python", "Streamlit", "Scikit-Learn", "TensorFlow / Keras", "XGBoost",
-           "Pandas", "NumPy", "OpenCV", "Plotly", "Matplotlib"])
-
-    st.info("👈 Use the sidebar to navigate. Start with **Liver Disease Prediction** "
-            "to test a patient, or **Model Evaluation** to inspect performance.")

@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Logs
+logs/*.log
+
+# Streamlit
+.streamlit/secrets.toml
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Keep trained models + dataset committed (needed for cloud deploy):
+# (do NOT ignore models/*.pkl or data/ilpd_raw.csv)
+
+# Ephemeral generated history (optional to keep)
+# data/historical_predictions.csv

@@ -1,0 +1,29 @@
+# BioMed AI Nexus — Liver Disease Prediction Platform
+# Python 3.10–3.13 supported.
+# Install with:  pip install -r requirements.txt
+
+# --- Core app & data ---
+streamlit>=1.36
+pandas>=2.0
+numpy>=1.26
+scipy>=1.11
+joblib>=1.3
+
+# --- Machine learning ---
+scikit-learn>=1.4
+xgboost>=2.0
+
+# --- Visualisation ---
+plotly>=5.20
+matplotlib>=3.8
+
+# --- Image / deep learning ---
+opencv-python-headless>=4.9
+pillow>=10.0
+# Image Analysis page (CNN + Grad-CAM). tensorflow-cpu is lighter and is the
+# right choice for Linux cloud hosting (Streamlit Cloud). On Windows locally,
+# use plain `pip install tensorflow` instead if you ever want it on your PC.
+tensorflow-cpu>=2.16
+
+# --- Reporting ---
+fpdf2>=2.7

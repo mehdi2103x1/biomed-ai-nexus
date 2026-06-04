@@ -220,12 +220,3 @@ def confidence_distribution(history: pd.DataFrame) -> go.Figure:
     fig.update_layout(xaxis_title="Confidence", yaxis_title="Count",
                       xaxis=dict(range=[0, 1]))
     return _base_layout(fig, "Confidence distribution", height=340)
-
-
-def cnn_probability_bar(labels: Sequence[str], probs: Sequence[float]) -> go.Figure:
-    """Top-k CNN class probabilities (image module)."""
-    fig = px.bar(x=list(probs), y=list(labels), orientation="h",
-                 color=list(probs), color_continuous_scale="Viridis")
-    fig.update_layout(coloraxis_showscale=False, xaxis_title="Probability",
-                      yaxis_title="", yaxis=dict(autorange="reversed"))
-    return _base_layout(fig, "Top predictions", height=360)

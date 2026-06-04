@@ -94,7 +94,9 @@ def inject_css(dark: bool = True) -> None:
         /* hide Streamlit chrome: main menu, footer, status, and the Deploy button */
         #MainMenu, footer, [data-testid="stStatusWidget"],
         [data-testid="stToolbar"], [data-testid="stDeployButton"],
-        .stDeployButton, [data-testid="stToolbarActions"] {{ display: none !important; }}
+        .stDeployButton, [data-testid="stToolbarActions"],
+        [data-testid="stSidebarCollapseButton"],
+        [data-testid="stSidebarCollapsedControl"] {{ display: none !important; }}
         [data-testid="stHeader"] {{ background: transparent; height: 0; }}
 
         /* equal-height cards: stretch columns so KPI/cards align on a row */
@@ -104,16 +106,33 @@ def inject_css(dark: bool = True) -> None:
 
         /* ---------- Typography ---------- */
         h1, h2, h3, h4 {{ font-family: var(--serif); letter-spacing:-.01em; color: var(--text); font-weight:600; }}
-        .stApp p, .stApp li, .stApp label, .stApp span {{ font-family: var(--sans); }}
+        .stApp p, .stApp li, .stApp label {{ font-family: var(--sans); }}
+        /* never override Material icon fonts (otherwise icons leak their ligature text) */
+        [data-testid="stIconMaterial"], .material-icons,
+        [class*="material-symbols"], span[translate="no"] {{
+          font-family: 'Material Symbols Rounded','Material Symbols Outlined','Material Icons' !important;
+        }}
         .block-container h2 {{ font-size:1.5rem; margin-top:.4rem; }}
         .block-container h3 {{ font-size:1.18rem; }}
         a {{ color: var(--primary); text-decoration: none; }}
 
-        /* ---------- Sidebar ---------- */
+        /* ---------- Sidebar (hover-expand rail) ---------- */
         section[data-testid="stSidebar"] {{
           background: linear-gradient(180deg, var(--surface), var(--bg2));
           border-right: 1px solid var(--border);
+          width: 80px !important; min-width: 80px !important;
+          transition: width .22s ease, min-width .22s ease;
         }}
+        /* expand automatically when the cursor is over the sidebar */
+        section[data-testid="stSidebar"]:hover {{
+          width: 300px !important; min-width: 300px !important;
+          box-shadow: 16px 0 48px -18px rgba(0,0,0,.7);
+        }}
+        section[data-testid="stSidebar"] [data-testid="stSidebarContent"] {{ overflow-x: hidden; }}
+        section[data-testid="stSidebar"] [role="radiogroup"] label {{ white-space: nowrap; overflow: hidden; }}
+        /* auxiliary text (title, byline, status) is hidden in the rail, shown on hover */
+        section[data-testid="stSidebar"] .sb-fade {{ opacity: 0; transition: opacity .15s ease; }}
+        section[data-testid="stSidebar"]:hover .sb-fade {{ opacity: 1; }}
         section[data-testid="stSidebar"] .block-container {{ padding-top: 1.4rem; }}
         section[data-testid="stSidebar"] hr {{ border-color: var(--border-soft); }}
         /* sidebar radio nav -> menu items */

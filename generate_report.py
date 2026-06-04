@@ -188,15 +188,14 @@ def build_html() -> str:
         <div class="type-doc">Rapport de projet — Intelligence Artificielle</div>
         <div class="ligne"></div>
         <div class="titre">HepatoScope<br>Plateforme intelligente de prédiction des maladies du foie</div>
-        <div class="sous-titre">Application web d'aide au diagnostic combinant cinq modèles de
-          Machine&nbsp;Learning, un module de Deep&nbsp;Learning d'analyse d'images et un
-          tableau de bord analytique interactif</div>
+        <div class="sous-titre">Application web d'aide au diagnostic fondée sur cinq modèles de
+          Machine&nbsp;Learning, avec évaluation comparative, tableau de bord
+          analytique interactif et rapport PDF</div>
         <div class="ligne"></div>
         <div class="badges">
           <span class="badge">Python</span><span class="badge">Streamlit</span>
           <span class="badge">Scikit-Learn</span><span class="badge">XGBoost</span>
-          <span class="badge">TensorFlow / Keras</span><span class="badge">Plotly</span>
-          <span class="badge">OpenCV</span>
+          <span class="badge">Plotly</span><span class="badge">Pandas</span>
         </div>
         <div class="bloc-info">
           <div class="lbl">Réalisé par</div>
@@ -231,21 +230,22 @@ def build_html() -> str:
       d'analyses biologiques d'un patient. L'application, baptisée
       <strong>HepatoScope</strong> et développée en <strong>Python</strong> avec
       le framework <strong>Streamlit</strong>, met en œuvre une chaîne complète
-      d'apprentissage supervisé sur le <em>Liver Patient Dataset</em> (30 691 enregistrements).</p>
-      <p>Cinq modèles de classification — <strong>Decision Tree, Random Forest,
-      Logistic Regression, SVM et XGBoost</strong> — sont entraînés, optimisés par
-      recherche d'hyperparamètres et comparés sur un ensemble de test indépendant.
-      La plateforme intègre en outre un <strong>module de Deep Learning</strong>
-      (réseau de neurones convolutif MobileNetV2 pré-entraîné) pour l'analyse
-      d'images, doté d'une explicabilité par carte de chaleur <strong>Grad-CAM</strong>.
-      L'interface, moderne et responsive, s'organise en six pages : accueil,
-      prédiction tabulaire, analyse d'images, évaluation des modèles, tableau de
-      bord analytique et page « à propos ». Le meilleur modèle atteint une
+      d'apprentissage supervisé sur le <em>Liver Patient Dataset</em>
+      (30 691 enregistrements, ~19 000 après nettoyage).</p>
+      <p>Il s'agit du <strong>sujet n°16 — Prédiction des maladies hépatiques</strong>,
+      un problème de classification <strong>tabulaire</strong> (à partir d'analyses
+      biologiques, sans imagerie médicale). Cinq modèles de classification —
+      <strong>Decision Tree, Random Forest, Logistic Regression, SVM et XGBoost</strong>
+      — sont entraînés, optimisés par recherche d'hyperparamètres et comparés sur un
+      ensemble de test indépendant. L'interface, moderne et responsive, s'organise
+      en cinq pages : accueil, prédiction, évaluation des modèles, tableau de bord
+      analytique et page « à propos ». Le meilleur modèle atteint une
+      <strong>accuracy de ''' + f"{BEST['accuracy']:.1%}" + '''</strong> et une
       <strong>AUC de ''' + f"{BEST['auc']:.3f}" + '''</strong> sur l'ensemble de
       test. Chaque prédiction est expliquée, journalisée et exportable en PDF.</p>
       <p><strong>Mots-clés :</strong> intelligence artificielle, apprentissage
-      supervisé, maladies du foie, Liver Patient Dataset, Scikit-Learn, XGBoost, Deep Learning,
-      MobileNetV2, Grad-CAM, Streamlit, aide au diagnostic.</p>
+      supervisé, classification, maladies du foie, Liver Patient Dataset,
+      Scikit-Learn, Random Forest, XGBoost, Streamlit, aide au diagnostic.</p>
     </section>
     ''')
 
@@ -266,7 +266,7 @@ def build_html() -> str:
         <div class="l2">4.2 Architecture modulaire en couches <span class="pt">.........</span> 8</div>
         <div class="l2">4.3 Structure du projet sur disque <span class="pt">............</span> 9</div>
         <div class="l1">5. Analyse et preprocessing des données <span class="pt">.............</span> 10</div>
-        <div class="l1">6. Méthodes de Machine Learning et Deep Learning <span class="pt">....</span> 12</div>
+        <div class="l1">6. Méthodes de Machine Learning <span class="pt">....</span> 12</div>
         <div class="l1">7. Évaluation, métriques et résultats expérimentaux <span class="pt">.</span> 14</div>
         <div class="l1">8. Interface utilisateur et fonctionnalités <span class="pt">.......</span> 17</div>
         <div class="l1">9. Choix technologiques <span class="pt">............................</span> 18</div>
@@ -285,7 +285,6 @@ def build_html() -> str:
         <tr><td>Langage</td><td>Python 3.13</td></tr>
         <tr><td>Jeu de données</td><td>Liver Patient Dataset — 30 691 enregistrements (~19 000 nettoyés), 10 variables</td></tr>
         <tr><td>Modèles ML</td><td>Decision Tree, Random Forest, Logistic Regression, SVM, XGBoost</td></tr>
-        <tr><td>Modèle DL</td><td>MobileNetV2 pré-entraîné (ImageNet) + Grad-CAM</td></tr>
         <tr><td>Meilleur modèle</td><td>''' + f"{BEST['name']} — AUC = {BEST['auc']:.3f}, Accuracy = {BEST['accuracy']:.1%}" + '''</td></tr>
         <tr><td>Livrables</td><td>Code source, modèles entraînés, rapport, README, Dockerfile</td></tr>
       </table>
@@ -313,9 +312,8 @@ def build_html() -> str:
       <p>Le présent travail, mené dans le cadre du module de Machine Learning —
       Apprentissage Supervisé, consiste à <strong>concevoir et réaliser une
       application web intelligente complète</strong> répondant au cahier des
-      charges fourni : analyse de données tabulaires saisies via un formulaire,
-      analyse d'images biomédicales par réseau de neurones, utilisation et
-      comparaison de plusieurs modèles, visualisation des performances et tableau
+      charges fourni : saisie de données tabulaires via un formulaire, entraînement
+      et comparaison de plusieurs modèles, visualisation des performances et tableau
       de bord. L'objectif est double : mettre en pratique les notions
       d'apprentissage supervisé étudiées en cours, et mener un projet logiciel de
       bout en bout selon des principes de génie logiciel (architecture modulaire,
@@ -369,8 +367,6 @@ def build_html() -> str:
         <li><strong>Prédire</strong> la maladie du foie à partir de données
         tabulaires patient saisies via un formulaire interactif ;</li>
         <li><strong>Entraîner et comparer</strong> cinq modèles de Machine Learning ;</li>
-        <li>fournir un <strong>module d'analyse d'images</strong> par CNN
-        pré-entraîné avec explicabilité Grad-CAM ;</li>
         <li><strong>visualiser les performances</strong> des modèles (métriques,
         courbes ROC, matrices de confusion) ;</li>
         <li>maintenir un <strong>historique</strong> des prédictions et un
@@ -431,24 +427,21 @@ def build_html() -> str:
       <h2>4.1 Vue d'ensemble et flux applicatif</h2>
       <p>Au lancement, le point d'entrée <code>app.py</code> configure le thème,
       charge en cache les modèles entraînés et le préprocesseur, puis affiche une
-      barre latérale de navigation qui route l'utilisateur vers l'une des six
+      barre latérale de navigation qui route l'utilisateur vers l'une des cinq
       pages. Le diagramme suivant synthétise le flux applicatif global.</p>
       <div class="mermaid">
 flowchart TB
   START(["Lancement (app.py)"]) --> INIT["Initialisation<br/>chargement des modeles + preprocesseur"]
   INIT --> NAV{"Navigation<br/>barre laterale"}
   NAV --> P1["Accueil"]
-  NAV --> P2["Prediction tabulaire"]
-  NAV --> P3["Analyse d'images"]
+  NAV --> P2["Prediction"]
   NAV --> P4["Evaluation des modeles"]
   NAV --> P5["Dashboard"]
   NAV --> P6["A propos"]
   P2 --> PRE["Preprocessing<br/>imputation + encodage + standardisation"]
   PRE --> ML["5 modeles ML<br/>vote souple"]
   ML --> OUT["Classe + probabilite + risque<br/>+ rapport PDF"]
-  P3 --> CNN["CNN MobileNetV2<br/>+ Grad-CAM"]
   OUT --> HIST[("historical_predictions.csv")]
-  CNN --> HIST
   HIST --> P5
       </div>
       <p class="legende">Figure 3 — Flux applicatif global de HepatoScope.</p>
@@ -464,8 +457,8 @@ flowchart TB
           <div class="arch-tag"><span class="num">①</span>Couche Présentation<small>Streamlit</small></div>
           <div class="arch-boxes">
             <div class="arch-box">app.py</div><div class="arch-box">home</div>
-            <div class="arch-box">prediction</div><div class="arch-box">image_analysis</div>
-            <div class="arch-box">evaluation</div><div class="arch-box">dashboard</div>
+            <div class="arch-box">prediction</div><div class="arch-box">evaluation</div>
+            <div class="arch-box">dashboard</div><div class="arch-box">about</div>
           </div>
         </div>
         <div class="arch-arrow">&#9660;&nbsp; appelle les fonctions metier — recoit les resultats &nbsp;&#9650;</div>
@@ -473,15 +466,15 @@ flowchart TB
           <div class="arch-tag"><span class="num">②</span>Couche Logique métier<small>utils/</small></div>
           <div class="arch-boxes">
             <div class="arch-box">preprocessing</div><div class="arch-box">models</div>
-            <div class="arch-box">image_model</div><div class="arch-box">visualization</div>
-            <div class="arch-box">pdf_report</div><div class="arch-box">history</div>
+            <div class="arch-box">visualization</div><div class="arch-box">pdf_report</div>
+            <div class="arch-box">history</div><div class="arch-box">styles</div>
           </div>
         </div>
         <div class="arch-arrow">&#9660;&nbsp; lit / ecrit — charge les modeles et les donnees &nbsp;&#9650;</div>
         <div class="arch-layer lay-data">
           <div class="arch-tag"><span class="num">③</span>Couche Données &amp; Modèles<small>data/ · models/</small></div>
           <div class="arch-boxes">
-            <div class="arch-box">ilpd_raw.csv</div><div class="arch-box">*.pkl</div>
+            <div class="arch-box">liver_raw.csv</div><div class="arch-box">*.pkl</div>
             <div class="arch-box">metrics.json</div><div class="arch-box">history.csv</div>
           </div>
         </div>
@@ -501,14 +494,12 @@ flowchart TB
 ├── pages/                  ← ① Couche Presentation
 │   ├── home.py             ← Page d'accueil (KPI, workflow, statistiques)
 │   ├── prediction.py       ← Formulaire medical + prediction multi-modeles
-│   ├── image_analysis.py   ← Upload image + CNN + Grad-CAM
 │   ├── evaluation.py       ← Metriques, ROC, matrices de confusion
 │   ├── dashboard.py        ← Tableau de bord analytique
 │   └── about.py            ← Description, pipeline, auteur
 ├── utils/                  ← ② Couche Logique metier
 │   ├── preprocessing.py    ← Chargement + LiverPreprocessor (impute/scale/encode)
 │   ├── models.py           ← TabularTrainer (offline) + ModelManager (online)
-│   ├── image_model.py      ← CNNImageClassifier (MobileNetV2 + Grad-CAM)
 │   ├── visualization.py    ← Graphiques Plotly reutilisables
 │   ├── pdf_report.py       ← Rapport de prediction PDF (fpdf2)
 │   ├── history.py          ← Journalisation CSV des predictions
@@ -561,7 +552,7 @@ flowchart TB
     # ---------------- 6. Méthodes ----------------
     A('''
     <section class="page">
-      <h1>6. Méthodes de Machine Learning et Deep Learning</h1>
+      <h1>6. Méthodes de Machine Learning</h1>
       <h2>6.1 Pipeline d'apprentissage supervisé</h2>
       <p>Le pipeline complet, implémenté dans <code>train.py</code>, enchaîne le
       chargement des données, la division stratifiée entraînement/test (80/20),
@@ -596,16 +587,6 @@ flowchart LR
       des probabilités des cinq modèles), assorti d'un niveau de risque (Low /
       Moderate / High / Very High) et d'un score de confiance.</p>
 
-      <h2>6.3 Module de Deep Learning : CNN + Grad-CAM</h2>
-      <p>Conformément au cahier des charges, un module d'analyse d'images démontre
-      une chaîne de Deep Learning complète à l'aide du réseau convolutif
-      <strong>MobileNetV2</strong> pré-entraîné sur ImageNet (TensorFlow/Keras).
-      Le pipeline réalise le redimensionnement (224×224), la normalisation,
-      l'inférence, la mesure du temps d'inférence, puis l'explicabilité par
-      <strong>Grad-CAM</strong> : la carte de chaleur met en évidence les régions
-      de l'image qui ont le plus contribué à la décision du réseau. Le module est
-      conçu pour être ultérieurement <em>fine-tuné</em> sur un véritable jeu
-      d'images hépatiques (échographie, scanner).</p>
     </section>
     ''')
 
@@ -661,26 +642,35 @@ flowchart LR
     <section class="page">
       <h1>8. Interface utilisateur et fonctionnalités</h1>
       <p>L'interface, développée avec Streamlit, est <strong>moderne, responsive et
-      interactive</strong> : sidebar stylisée, mode sombre, cartes KPI, colonnes et
+      interactive</strong> : sidebar rétractable au survol, thème sombre, cartes KPI, colonnes et
       conteneurs, animations CSS et graphiques interactifs Plotly. Elle s'organise
-      en six pages.</p>
+      en cinq pages.</p>
       <table class="nobreak">
         <tr><th style="width:24%">Page</th><th>Rôle et contenu</th></tr>
         <tr><td>Accueil</td><td>Bannière, objectifs, cartes KPI du dataset, diagramme de flux, statistiques sur les maladies du foie.</td></tr>
-        <tr><td>Prédiction tabulaire</td><td>Formulaire médical (champs numériques, sliders, liste déroulante, boutons radio), validation des entrées, barre de progression et spinner, résultat (classe, jauge de probabilité, confiance, niveau de risque), importance des variables, tableau comparatif des modèles, export du rapport PDF.</td></tr>
-        <tr><td>Analyse d'images</td><td>Upload d'image, prétraitement automatique, inférence CNN, score de confiance, graphique des probabilités, carte Grad-CAM, temps d'inférence.</td></tr>
+        <tr><td>Prédiction tabulaire</td><td>Formulaire médical (champs numériques, liste déroulante, boutons radio), validation des entrées, barre de progression et spinner, résultat (classe, jauge de probabilité, confiance, niveau de risque), importance des variables, tableau comparatif des modèles, export du rapport PDF.</td></tr>
         <tr><td>Évaluation des modèles</td><td>Accuracy, précision, rappel, F1, AUC, courbes ROC, matrices de confusion, rapports de classification, temps d'entraînement, hyperparamètres, classement.</td></tr>
         <tr><td>Dashboard</td><td>KPIs (total, positifs, négatifs, confiance moyenne), graphiques (camembert, barres, courbe temporelle, distribution), historique, export CSV.</td></tr>
         <tr><td>À propos</td><td>Description, technologies, explication du pipeline ML, architecture, auteur.</td></tr>
       </table>
       <h2>8.2 Fonctionnalités avancées</h2>
       <p>Conformément au cahier des charges, la plateforme intègre : le
-      <strong>mode sombre</strong>, l'<strong>export CSV</strong> de l'historique,
+      <strong>thème sombre</strong>, l'<strong>export CSV</strong> de l'historique,
       l'<strong>export PDF</strong> des prédictions, la <strong>persistance de
       l'historique</strong> (<code>historical_predictions.csv</code>), des
       <strong>animations</strong>, une <strong>gestion des erreurs</strong> à
       chaque niveau (validation, garde-fous, filet de sécurité global) et une
       <strong>journalisation</strong> rotative (<code>logs/app.log</code>).</p>
+
+      <h2>8.3 Capture d'écran commentée</h2>
+      <p>La figure ci-dessous montre la page <strong>Prédiction</strong> en
+      fonctionnement réel, pour un patient au bilan hépatique fortement perturbé
+      (bilirubine totale 7,3 ; ALT 60 ; AST 68 ; albumine 3,3). Les cinq modèles
+      votent à l'unanimité : le patient est classé <em>Maladie du foie</em> avec
+      une probabilité de 99,2 % et un niveau de risque <em>Very High</em>. On
+      distingue la carte de résultat, les indicateurs (probabilité, confiance), la
+      jauge de probabilité et le tableau de vote des modèles.</p>
+      ''' + img('shot_prediction.png', 'Figure 10 — Page Prediction : resultat reel produit par HepatoScope pour un cas pathologique (probabilite 99,2 %, risque Very High).', '96%') + '''
     </section>
     ''')
 
@@ -694,9 +684,7 @@ flowchart LR
         <tr><td>Streamlit</td><td>Framework web orienté data : transforme un script Python en application interactive sans HTML/JS, idéal pour un prototype d'IA professionnel.</td></tr>
         <tr><td>Scikit-Learn</td><td>Bibliothèque de référence du Machine Learning : préprocesseurs, modèles, GridSearchCV, métriques.</td></tr>
         <tr><td>XGBoost</td><td>Implémentation optimisée du gradient boosting, performante sur données tabulaires.</td></tr>
-        <tr><td>TensorFlow / Keras</td><td>Framework de Deep Learning ; fournit MobileNetV2 pré-entraîné et le calcul des gradients pour Grad-CAM.</td></tr>
         <tr><td>Pandas / NumPy</td><td>Manipulation des données tabulaires et calcul numérique vectorisé.</td></tr>
-        <tr><td>OpenCV</td><td>Prétraitement des images (redimensionnement, conversions, superposition de la heatmap).</td></tr>
         <tr><td>Plotly</td><td>Graphiques interactifs (jauges, ROC, matrices, distributions).</td></tr>
         <tr><td>Matplotlib</td><td>Figures statiques haute résolution pour ce rapport.</td></tr>
         <tr><td>fpdf2</td><td>Génération du rapport de prédiction PDF, sans dépendance système.</td></tr>
@@ -712,9 +700,10 @@ flowchart LR
         <li><strong>Valeurs manquantes et échelles hétérogènes</strong> : gérées par
         un pipeline d'imputation médiane et de standardisation ajusté sans fuite de
         données.</li>
-        <li><strong>Absence de jeu d'images médicales propriétaire</strong> : le
-        module image est, comme le permet le sujet, une démonstration sur CNN
-        pré-entraîné, prête à être fine-tunée.</li>
+        <li><strong>Doublons massifs du jeu de données</strong> : plus de
+        11 000 lignes dupliquées ont été supprimées <em>avant</em> la division
+        entraînement/test, afin d'éviter toute fuite d'information et de garantir
+        une évaluation honnête.</li>
         <li><strong>Encodage Unicode du PDF</strong> : la police latin-1 de fpdf2 a
         nécessité une fonction de normalisation du texte.</li>
         <li><strong>Cohabitation avec la navigation multi-pages de Streamlit</strong> :
@@ -724,12 +713,9 @@ flowchart LR
 
       <h1 style="margin-top:30px;">11. Perspectives d'amélioration</h1>
       <ul>
-        <li><em>Fine-tuning</em> du CNN sur un véritable jeu d'images hépatiques
-        (échographie, scanner, IRM).</li>
         <li>Calibration des probabilités et explicabilité avancée (SHAP).</li>
         <li>Exposition d'une API REST (FastAPI), authentification utilisateur et
         base de données persistante.</li>
-        <li>Webcam en temps réel et comparaison de plusieurs images.</li>
         <li>Déploiement conteneurisé (Dockerfile fourni) et hébergement cloud avec
         intégration continue.</li>
       </ul>
@@ -740,8 +726,7 @@ flowchart LR
       <p>HepatoScope démontre une chaîne complète d'intelligence artificielle
       biomédicale : de l'acquisition et du prétraitement des données à la prédiction
       expliquée, en passant par l'entraînement, l'optimisation et l'évaluation
-      comparative de cinq modèles de Machine Learning, complétés par un module de
-      Deep Learning d'analyse d'images. L'application, modulaire, robuste et dotée
+      comparative de cinq modèles de Machine Learning. L'application, modulaire, robuste et dotée
       d'une interface moderne, atteint des performances conformes à l'état de l'art
       sur ce jeu de données (AUC du meilleur modèle = ''' + f"{BEST['auc']:.3f}" + ''')
       tout en restant pleinement interprétable.</p>
@@ -749,8 +734,7 @@ flowchart LR
       œuvre, de bout en bout, une démarche d'ingénierie rigoureuse : analyse du
       besoin, conception d'une architecture en couches, prévention de la fuite de
       données, gestion du déséquilibre, évaluation honnête et explicabilité. La
-      plateforme constitue une base solide, naturellement extensible vers des
-      données d'imagerie réelles et un déploiement en production.</p>
+      plateforme constitue une base solide, naturellement extensible vers de nouveaux jeux de données cliniques et un déploiement en production.</p>
 
       <h1 style="margin-top:34px;">Webographie</h1>
       <ul>
@@ -759,9 +743,6 @@ flowchart LR
         <li>Documentation Scikit-Learn — scikit-learn.org.</li>
         <li>Documentation XGBoost — xgboost.readthedocs.io.</li>
         <li>Documentation Streamlit — docs.streamlit.io.</li>
-        <li>TensorFlow / Keras Applications (MobileNetV2) — keras.io/api/applications.</li>
-        <li>Selvaraju et&nbsp;al., <em>Grad-CAM: Visual Explanations from Deep
-        Networks</em>, ICCV 2017.</li>
       </ul>
       <p style="margin-top:26px; font-size:9pt; color:#888;"><em>Avertissement :
       ce projet est un prototype académique entraîné sur un jeu de données public.

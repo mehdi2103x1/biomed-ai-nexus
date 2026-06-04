@@ -1,4 +1,4 @@
-# BioMed AI Nexus — Liver Disease Prediction Platform
+# HepatoScope — Liver Disease Prediction Platform
 # Python 3.10–3.13 supported.
 # Install with:  pip install -r requirements.txt
 
@@ -16,14 +16,6 @@ xgboost>=2.0
 # --- Visualisation ---
 plotly>=5.20
 matplotlib>=3.8
-
-# --- Image / deep learning (CNN image analysis) ---
-opencv-python-headless>=4.9
-pillow>=10.0
-# ONNX Runtime serves the pretrained MobileNetV2 CNN. It is lightweight (a few MB)
-# so the Image Analysis page works on the free cloud tier — unlike TensorFlow,
-# which exceeds the tier's limits.
-onnxruntime>=1.17
 
 # --- Reporting ---
 fpdf2>=2.7

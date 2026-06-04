@@ -18,7 +18,7 @@ import streamlit as st
 from config import (
     APP_ICON, APP_SUBTITLE, APP_TITLE, AUTHOR_BYLINE, AUTHOR_PROGRAM, MODEL_REGISTRY,
 )
-from pages import about, dashboard, evaluation, home, image_analysis, prediction
+from pages import about, dashboard, evaluation, home, prediction
 from utils.logger import get_logger
 from utils.models import ModelManager
 from utils.preprocessing import load_raw_dataset
@@ -38,7 +38,6 @@ st.set_page_config(
 PAGES = {
     "Home": ("🏠", home.render),
     "Liver Disease Prediction": ("🔬", prediction.render),
-    "Image Analysis": ("🖼️", image_analysis.render),
     "Model Evaluation": ("📊", evaluation.render),
     "Dashboard": ("📈", dashboard.render),
     "About": ("ℹ️", about.render),
@@ -66,7 +65,7 @@ def _sidebar() -> str:
         st.markdown(
             f"<div style='display:flex;align-items:center;gap:.7rem;padding:.2rem 0 .1rem'>"
             f"<div style='font-size:2rem;line-height:1'>{APP_ICON}</div>"
-            f"<div><div style=\"font-family:'Spectral',serif;font-weight:700;"
+            f"<div class='sb-fade'><div style=\"font-family:'Spectral',serif;font-weight:700;"
             f"font-size:1.34rem;line-height:1.05;letter-spacing:-.01em\">{APP_TITLE}</div>"
             f"<div style='font-size:.72rem;color:var(--muted);letter-spacing:.02em'>"
             f"{AUTHOR_BYLINE}</div></div></div>",
@@ -82,7 +81,7 @@ def _sidebar() -> str:
         st.divider()
         n_loaded = len(get_manager().estimators)
         st.markdown(
-            f"<div style='font-size:.74rem;color:var(--muted);line-height:1.7'>"
+            f"<div class='sb-fade' style='font-size:.74rem;color:var(--muted);line-height:1.7'>"
             f"<span style='color:var(--primary)'>●</span> {n_loaded}/{len(MODEL_REGISTRY)} "
             f"models loaded<br>{AUTHOR_PROGRAM}</div>",
             unsafe_allow_html=True,

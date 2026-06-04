@@ -16,29 +16,30 @@ def render(ctx: dict) -> None:
 
     st.markdown(f"""
 **{APP_TITLE}** is a clinical decision-support platform that predicts liver
-disease from routine blood-panel biomarkers, provides a deep-learning image
-module, and explains every prediction.
+disease from routine blood-panel biomarkers and patient data, and explains
+every prediction.
 
-**Problem statement.** *How can liver diseases be predicted from biological
-analyses and patient medical data?*
+**Subject 16 — Liver disease prediction.** *How can liver diseases be predicted
+from biological analyses and patient medical data?* This is a **tabular**
+machine-learning problem (no medical imaging).
 """)
 
     section("Technologies")
-    pills(["Python", "Streamlit", "Scikit-Learn", "XGBoost", "ONNX Runtime",
-           "Pandas", "NumPy", "OpenCV", "Plotly"])
+    pills(["Python", "Streamlit", "Scikit-Learn", "XGBoost",
+           "Pandas", "NumPy", "Plotly", "Matplotlib"])
 
     section("Machine-learning pipeline")
     st.markdown(f"""
-1. **Data** — {DATASET_NAME}: ~19,000 cleaned patient records, 10 clinical features.
+1. **Data** — {DATASET_NAME}: 30,691 records (~19,000 after removing duplicate
+   rows), 10 clinical features.
 2. **Preprocessing** — median imputation, gender encoding and standardisation,
    fitted on the training split only to prevent data leakage.
 3. **Modelling** — five classifiers tuned with `GridSearchCV` (5-fold stratified
    cross-validation): Decision Tree, Random Forest, Logistic Regression, SVM, XGBoost.
 4. **Evaluation** — accuracy, precision, recall, F1 and ROC-AUC on a held-out
-   20 % test set.
+   20 % test set; best model ≈ 99 % accuracy.
 5. **Inference** — soft-voting ensemble with a confidence score and risk band.
-6. **Explainability** — feature importance for the tabular models and an
-   occlusion-sensitivity heatmap for the image CNN.
+6. **Explainability** — feature-importance ranking and a downloadable PDF report.
 """)
 
     section("Author")

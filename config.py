@@ -102,13 +102,6 @@ MODEL_REGISTRY: dict[str, str] = {
 }
 
 # --------------------------------------------------------------------------- #
-# Deep-learning / image module
-# --------------------------------------------------------------------------- #
-IMAGE_SIZE: tuple[int, int] = (224, 224)          # MobileNetV2 native input
-CNN_BACKBONE: str = "MobileNetV2"
-GRADCAM_LAYER: str = "Conv_1"                      # last conv layer in MobileNetV2
-
-# --------------------------------------------------------------------------- #
 # UI / theming
 # --------------------------------------------------------------------------- #
 APP_TITLE: str = "HepatoScope"

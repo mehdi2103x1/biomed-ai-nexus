@@ -8,19 +8,19 @@ from __future__ import annotations
 
 import streamlit as st
 
-from config import APP_SUBTITLE, APP_TITLE
+from config import APP_SUBTITLE, APP_TITLE, DATASET_NAME
 from utils.preprocessing import dataset_overview
 from utils.styles import hero, render_kpis, section
 
 
 def _workflow_diagram() -> None:
-    """A lightweight, dependency-free workflow diagram (matches the brief)."""
+    """A lightweight, dependency-free workflow diagram of the ML pipeline."""
     steps = [
-        ("📥", "Data Input", "Form / Image upload"),
+        ("📝", "Patient Data", "Blood-panel form"),
         ("⚙️", "Preprocessing", "Impute · Scale · Encode"),
-        ("🤖", "ML / DL Models", "5 ML models + CNN"),
+        ("🤖", "5 ML Models", "DT · RF · LR · SVM · XGB"),
+        ("🗳️", "Ensemble Vote", "Soft voting"),
         ("📊", "Prediction", "Class · Probability · Risk"),
-        ("🔍", "Explainability", "Importance · Grad-CAM"),
         ("🗂️", "History & Dashboard", "CSV · KPIs · Charts"),
     ]
     cells = []
@@ -55,14 +55,14 @@ def render(ctx: dict) -> None:
 
     st.markdown(
         "Predicts liver disease from routine blood-panel biomarkers and patient "
-        "data using five Machine-Learning models, with a Deep-Learning "
-        "image-analysis module and explainable, interactive results."
+        "data using five Machine-Learning models, with comparative evaluation, "
+        "an analytics dashboard and explainable, exportable results."
     )
 
     # --- Dataset KPI cards ------------------------------------------------ #
     df = ctx["dataset"]
     ov = dataset_overview(df)
-    section("Dataset overview — Indian Liver Patient Dataset (ILPD)")
+    section(f"Dataset overview — {DATASET_NAME}")
     render_kpis([
         {"icon": "🧬", "value": f"{ov['n_rows']}", "label": "Patient records"},
         {"icon": "🩸", "value": f"{ov['n_disease']}", "label": "Liver disease cases",
@@ -75,7 +75,7 @@ def render(ctx: dict) -> None:
         {"icon": "👤", "value": f"{ov['mean_age']:.0f} yr", "label": "Mean age"},
         {"icon": "⚧", "value": f"{ov['pct_male']:.0%}", "label": "Male proportion"},
         {"icon": "🧪", "value": f"{ov['missing_values']}", "label": "Missing values handled"},
-        {"icon": "🤖", "value": "5 + CNN", "label": "Models available"},
+        {"icon": "🤖", "value": "5", "label": "ML models"},
     ])
 
     # --- Workflow --------------------------------------------------------- #

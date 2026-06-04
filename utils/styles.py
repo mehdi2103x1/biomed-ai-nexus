@@ -98,11 +98,12 @@ def inject_css(dark: bool = True) -> None:
         /* transparent header, but keep it functional so the sidebar expand arrow
            (shown when the sidebar is collapsed) renders and stays clickable */
         [data-testid="stHeader"] {{ background: transparent; }}
-        [data-testid="stSidebarCollapsedControl"] {{
+        [data-testid="stSidebarCollapsedControl"], [data-testid="collapsedControl"] {{
           display: flex !important; visibility: visible !important; opacity: 1 !important;
           z-index: 1000;
         }}
-        [data-testid="stSidebarCollapsedControl"] button {{ color: var(--text) !important; }}
+        [data-testid="stSidebarCollapsedControl"] button,
+        [data-testid="collapsedControl"] button {{ color: var(--text) !important; }}
 
         /* equal-height cards: stretch columns so KPI/cards align on a row */
         [data-testid="stHorizontalBlock"] {{ align-items: stretch; }}

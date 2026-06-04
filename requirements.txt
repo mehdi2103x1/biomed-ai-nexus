@@ -20,12 +20,11 @@ matplotlib>=3.8
 # --- Image / deep learning ---
 opencv-python-headless>=4.9
 pillow>=10.0
-# NOTE: TensorFlow (for the Image Analysis CNN + Grad-CAM page) is intentionally
-# NOT installed on the free Streamlit Community Cloud tier: its size exceeds the
-# tier's memory/disk limits and breaks the build. The image module degrades
-# gracefully when TensorFlow is absent. To enable it (locally or on a paid tier),
-# install:  pip install tensorflow
-# tensorflow-cpu>=2.16
+# Image Analysis page (CNN + Grad-CAM). tensorflow-cpu is the lighter CPU-only
+# build (no CUDA libs) suited to cloud hosting. Pinned >=2.18 so a wheel exists
+# for the cloud's Python (3.12/3.13). If the free tier still runs out of memory,
+# comment this line out again — every other page keeps working.
+tensorflow-cpu>=2.18
 
 # --- Reporting ---
 fpdf2>=2.7

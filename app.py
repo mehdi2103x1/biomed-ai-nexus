@@ -23,6 +23,7 @@ from utils.logger import get_logger
 from utils.models import ModelManager
 from utils.preprocessing import load_raw_dataset
 from utils.styles import inject_css
+from utils import visualization
 
 log = get_logger("app")
 
@@ -63,10 +64,12 @@ def get_dataset():
 def _sidebar() -> str:
     with st.sidebar:
         st.markdown(
-            f"<div style='text-align:center;padding:.4rem 0 0'>"
-            f"<div style='font-size:2.6rem'>{APP_ICON}</div>"
-            f"<div style='font-weight:800;font-size:1.25rem'>{APP_TITLE}</div>"
-            f"<div style='font-size:.8rem;opacity:.7'>{APP_SUBTITLE}</div></div>",
+            f"<div style='display:flex;align-items:center;gap:.7rem;padding:.2rem 0 .1rem'>"
+            f"<div style='font-size:2rem;line-height:1'>{APP_ICON}</div>"
+            f"<div><div style=\"font-family:'Spectral',serif;font-weight:700;"
+            f"font-size:1.32rem;line-height:1.05;letter-spacing:-.01em\">{APP_TITLE}</div>"
+            f"<div style='font-size:.74rem;color:var(--muted);letter-spacing:.02em'>"
+            f"{APP_SUBTITLE}</div></div></div>",
             unsafe_allow_html=True,
         )
         st.divider()
@@ -77,15 +80,21 @@ def _sidebar() -> str:
             label_visibility="collapsed",
         )
         st.divider()
-        dark = st.toggle("🌙 Dark mode", value=True)
-        st.caption(f"Models loaded: {len(get_manager().estimators)}/{len(MODEL_REGISTRY)}")
-        st.caption(f"👤 {AUTHOR_PROGRAM}")
+        dark = st.toggle("Dark mode", value=True)
+        n_loaded = len(get_manager().estimators)
+        st.markdown(
+            f"<div style='font-size:.76rem;color:var(--muted);line-height:1.7'>"
+            f"<span style='color:var(--primary)'>●</span> {n_loaded}/{len(MODEL_REGISTRY)} "
+            f"models loaded<br>{AUTHOR_PROGRAM}</div>",
+            unsafe_allow_html=True,
+        )
         return choice, dark  # type: ignore[return-value]
 
 
 def main() -> None:
     choice, dark = _sidebar()
     inject_css(dark=dark)
+    visualization.set_theme(dark)
 
     ctx = {
         "manager": get_manager(),

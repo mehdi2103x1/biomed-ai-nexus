@@ -26,12 +26,9 @@ log = get_logger("image_model")
 
 
 def tensorflow_available() -> bool:
-    """True if TensorFlow can be imported on this machine."""
-    try:
-        import tensorflow  # noqa: F401
-        return True
-    except Exception:        # pragma: no cover - environment dependent
-        return False
+    """True if TensorFlow is installed on this machine (without importing it)."""
+    import importlib.util
+    return importlib.util.find_spec("tensorflow") is not None
 
 
 @dataclass

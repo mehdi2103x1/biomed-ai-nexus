@@ -16,23 +16,46 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-from config import ACCENT_COLOR, CLASS_NAMES, PRIMARY_COLOR
+from config import ACCENT_COLOR, CLASS_NAMES, DANGER_COLOR, OK_COLOR, PRIMARY_COLOR
 
-_TEMPLATE = "plotly_dark"
-_DISEASE_COLOR = "#ef4444"
-_HEALTHY_COLOR = PRIMARY_COLOR
+_DISEASE_COLOR = DANGER_COLOR
+_HEALTHY_COLOR = OK_COLOR
+
+# Charts are drawn on a transparent background and inherit the active app theme.
+# ``set_theme`` (called by app.py each run) picks font/grid colours that read
+# well on either the dark or the light canvas.
+_THEME = {
+    "template": "plotly_dark",
+    "font": "#cbd5e1",
+    "grid": "rgba(148,163,184,.16)",
+}
+_FONT_FAMILY = "IBM Plex Sans, -apple-system, sans-serif"
+
+
+def set_theme(dark: bool = True) -> None:
+    """Update the module-level chart theme to match the app (dark/light)."""
+    if dark:
+        _THEME.update(template="plotly_dark", font="#cbd5e1",
+                      grid="rgba(148,163,184,.16)")
+    else:
+        _THEME.update(template="plotly_white", font="#475569",
+                      grid="rgba(71,85,105,.14)")
 
 
 def _base_layout(fig: go.Figure, title: str = "", height: int = 380) -> go.Figure:
     fig.update_layout(
-        title=title,
-        template=_TEMPLATE,
+        title=dict(text=title, font=dict(size=15, family=_FONT_FAMILY)),
+        template=_THEME["template"],
         height=height,
         margin=dict(l=10, r=10, t=50 if title else 20, b=10),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(size=13),
+        font=dict(size=13, family=_FONT_FAMILY, color=_THEME["font"]),
+        colorway=[PRIMARY_COLOR, ACCENT_COLOR, "#6aa9ff", DANGER_COLOR,
+                  "#e0a82e", "#9b8cff"],
     )
+    fig.update_xaxes(gridcolor=_THEME["grid"], zerolinecolor=_THEME["grid"])
+    fig.update_yaxes(gridcolor=_THEME["grid"], zerolinecolor=_THEME["grid"])
     return fig
 
 

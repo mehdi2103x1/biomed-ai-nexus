@@ -9,10 +9,10 @@ showErrorDetails = true
 
 [theme]
 base = "dark"
-primaryColor = "#10b981"
-backgroundColor = "#0e1117"
-secondaryBackgroundColor = "#161b26"
-textColor = "#e6edf3"
+primaryColor = "#16b8a6"
+backgroundColor = "#0b1118"
+secondaryBackgroundColor = "#141d28"
+textColor = "#e9eff5"
 font = "sans serif"
 
 [server]

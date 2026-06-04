@@ -9,7 +9,6 @@ table. History is persisted in ``data/historical_predictions.csv``.
 """
 from __future__ import annotations
 
-import pandas as pd
 import streamlit as st
 
 from utils.history import clear_history, history_kpis, load_history

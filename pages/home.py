@@ -35,12 +35,14 @@ def _workflow_diagram() -> None:
         """
         <style>
         .wf-wrap{display:flex;flex-wrap:wrap;align-items:stretch;gap:.4rem;justify-content:center;}
-        .wf-step{flex:1 1 150px;min-width:140px;background:rgba(99,102,241,.10);
-                 border:1px solid rgba(99,102,241,.35);border-radius:14px;padding:1rem .8rem;
-                 text-align:center;}
-        .wf-ico{font-size:1.7rem;} .wf-title{font-weight:700;margin-top:.3rem;}
-        .wf-sub{font-size:.78rem;opacity:.8;margin-top:.2rem;}
-        .wf-arrow{display:flex;align-items:center;font-size:1.4rem;opacity:.6;}
+        .wf-step{flex:1 1 150px;min-width:140px;background:var(--surface);
+                 border:1px solid var(--border);border-radius:14px;padding:1rem .8rem;
+                 text-align:center;position:relative;z-index:1;}
+        .wf-step::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+                 background:var(--primary);opacity:.7;border-radius:3px 0 0 3px;}
+        .wf-ico{font-size:1.6rem;} .wf-title{font-weight:600;margin-top:.3rem;font-family:'Spectral',serif;}
+        .wf-sub{font-size:.76rem;color:var(--muted);margin-top:.2rem;}
+        .wf-arrow{display:flex;align-items:center;font-size:1.2rem;color:var(--primary);opacity:.65;}
         </style>
         """,
         unsafe_allow_html=True,

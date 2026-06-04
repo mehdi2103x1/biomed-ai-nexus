@@ -14,18 +14,18 @@ import time
 
 import streamlit as st
 
-from config import FEATURE_META, PRIMARY_COLOR
+from config import FEATURE_META
 from utils.history import append_record
 from utils.pdf_report import build_prediction_pdf
 from utils.preprocessing import validate_form
-from utils.styles import hero, render_kpis
+from utils.styles import hero, render_kpis, result_card, section
 from utils.visualization import (
     feature_importance_bar, model_comparison_bar, probability_gauge,
 )
 
 _RISK_COLORS = {
-    "Low": "#10b981", "Moderate": "#eab308",
-    "High": "#f97316", "Very High": "#ef4444",
+    "Low": "#2dbb7f", "Moderate": "#e0a82e",
+    "High": "#f5853f", "Very High": "#f06a82",
 }
 
 
@@ -77,17 +77,10 @@ def _build_form() -> dict:
 
 
 def _result_banner(decision: dict) -> None:
-    """Big coloured result card."""
+    """Big diagnosis result card (refined, clinical)."""
     is_disease = decision["label"] == 1
-    color = "#ef4444" if is_disease else PRIMARY_COLOR
-    icon = "⚠️" if is_disease else "✅"
-    st.markdown(
-        f"<div class='result-card' style='background:linear-gradient(120deg,{color},"
-        f"{color}cc);'><div style='font-size:2.4rem'>{icon}</div>"
-        f"<div style='font-size:1.7rem;font-weight:800'>{decision['text']}</div>"
-        f"<div style='opacity:.9'>{decision['agreement']}</div></div>",
-        unsafe_allow_html=True,
-    )
+    icon = "⚠" if is_disease else "✓"
+    result_card(icon, decision["text"], decision["agreement"], positive=is_disease)
 
 
 def render(ctx: dict) -> None:
@@ -126,7 +119,7 @@ def render(ctx: dict) -> None:
     progress.empty()
 
     # --- Result ----------------------------------------------------------- #
-    st.markdown("### 🩺 Result")
+    section("Result")
     left, right = st.columns([1, 1])
     with left:
         _result_banner(decision)
@@ -147,7 +140,7 @@ def render(ctx: dict) -> None:
                         use_container_width=True)
 
     # --- Model comparison + feature importance --------------------------- #
-    st.markdown("### 📊 How each model voted")
+    section("How each model voted")
     cc1, cc2 = st.columns([1.1, 1])
     with cc1:
         show = comparison[["Model", "Prediction", "Disease Probability", "Confidence"]].copy()
@@ -161,7 +154,7 @@ def render(ctx: dict) -> None:
     best_key = mgr.best_model_key()
     fi = mgr.metrics.get("models", {}).get(best_key, {}).get("feature_importance", {})
     if fi:
-        st.markdown(f"### 🔍 Feature importance — {mgr.metrics['models'][best_key]['name']}")
+        section(f"Feature importance — {mgr.metrics['models'][best_key]['name']}")
         st.plotly_chart(feature_importance_bar(fi), use_container_width=True)
 
     # --- Persist to history ---------------------------------------------- #
@@ -179,7 +172,7 @@ def render(ctx: dict) -> None:
     st.toast("Prediction saved to history ✅")
 
     # --- PDF download ----------------------------------------------------- #
-    st.markdown("### 📄 Export")
+    section("Export")
     try:
         pdf_bytes = build_prediction_pdf(
             decision, form, comparison, patient_id=form["_patient_id"] or None)

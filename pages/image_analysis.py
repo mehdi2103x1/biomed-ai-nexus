@@ -37,13 +37,27 @@ def render(ctx: dict) -> None:
          "Pretrained CNN (MobileNetV2) inference with Grad-CAM explainability")
 
     if not tensorflow_available():
-        st.warning(
-            "🧩 **TensorFlow is not installed**, so the deep-learning image module "
-            "is disabled. Install it to enable this page:\n\n"
-            "```\npip install tensorflow\n```\n\n"
-            "All other pages (tabular prediction, evaluation, dashboard) work "
-            "without TensorFlow."
+        st.info(
+            "🧠 **Deep-learning image module — full pipeline implemented.**\n\n"
+            "This page runs a pretrained **MobileNetV2** CNN with automatic "
+            "preprocessing, inference, a probability chart, inference-time "
+            "measurement and a **Grad-CAM** explainability heatmap "
+            "(see `utils/image_model.py`).\n\n"
+            "It requires **TensorFlow**, which is disabled on this free cloud "
+            "deployment because its size exceeds the host's memory limit. To run "
+            "this module, launch the app locally after `pip install tensorflow` — "
+            "all other pages (tabular prediction, model evaluation, dashboard) are "
+            "fully functional here online."
         )
+        with st.expander("📄 What this module does (architecture)"):
+            st.markdown(
+                "1. **Upload** a `jpg/jpeg/png` image.\n"
+                "2. **Preprocess** — resize to 224×224, RGB conversion, MobileNetV2 normalisation.\n"
+                "3. **Inference** — forward pass through MobileNetV2 (ImageNet weights).\n"
+                "4. **Outputs** — predicted class, confidence, top-k probability chart, inference time (ms).\n"
+                "5. **Explainability** — Grad-CAM heatmap overlay highlighting the regions "
+                "that drove the prediction."
+            )
         return
 
     st.markdown(

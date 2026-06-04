@@ -20,10 +20,12 @@ matplotlib>=3.8
 # --- Image / deep learning ---
 opencv-python-headless>=4.9
 pillow>=10.0
-# Image Analysis page (CNN + Grad-CAM). tensorflow-cpu is lighter and is the
-# right choice for Linux cloud hosting (Streamlit Cloud). On Windows locally,
-# use plain `pip install tensorflow` instead if you ever want it on your PC.
-tensorflow-cpu>=2.16
+# NOTE: TensorFlow (for the Image Analysis CNN + Grad-CAM page) is intentionally
+# NOT installed on the free Streamlit Community Cloud tier: its size exceeds the
+# tier's memory/disk limits and breaks the build. The image module degrades
+# gracefully when TensorFlow is absent. To enable it (locally or on a paid tier),
+# install:  pip install tensorflow
+# tensorflow-cpu>=2.16
 
 # --- Reporting ---
 fpdf2>=2.7

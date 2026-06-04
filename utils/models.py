@@ -68,19 +68,18 @@ def build_estimators() -> dict[str, Any]:
 
 def search_spaces() -> dict[str, dict]:
     """Compact grids — large enough to be meaningful, small enough to be fast."""
-    # ``class_weight``/``scale_pos_weight`` counter the ILPD class imbalance
-    # (~71 % disease) so the models do not collapse to the trivial all-positive
-    # predictor.
+    # ``class_weight``/``scale_pos_weight`` counter the class imbalance
+    # (~71 % disease). Grids are kept compact so a full GridSearchCV stays fast
+    # even on the ~19k-row dataset (the kernel SVM is the scaling bottleneck).
     return {
         "decision_tree": {
-            "max_depth": [3, 5, 8, None],
-            "min_samples_leaf": [1, 5, 10],
+            "max_depth": [6, 12, None],
+            "min_samples_leaf": [1, 5],
             "class_weight": [None, "balanced"],
         },
         "random_forest": {
             "n_estimators": [200, 400],
-            "max_depth": [5, 10, None],
-            "min_samples_leaf": [1, 3],
+            "max_depth": [None, 16],
             "class_weight": [None, "balanced"],
         },
         "logistic_regression": {
@@ -88,17 +87,16 @@ def search_spaces() -> dict[str, dict]:
             "class_weight": [None, "balanced"],
         },
         "svm": {
-            "C": [0.5, 1.0, 5.0],
-            "kernel": ["rbf", "linear"],
+            "C": [1.0, 5.0],
+            "kernel": ["rbf"],
             "gamma": ["scale"],
-            "class_weight": [None, "balanced"],
+            "class_weight": ["balanced"],
         },
         "xgboost": {
-            "n_estimators": [200, 400],
-            "max_depth": [3, 5],
-            "learning_rate": [0.05, 0.1],
-            "subsample": [0.8, 1.0],
-            "scale_pos_weight": [1, 0.4],   # ~ inverse of the disease/healthy ratio
+            "n_estimators": [300, 500],
+            "max_depth": [4, 6],
+            "learning_rate": [0.1],
+            "subsample": [0.9],
         },
     }
 

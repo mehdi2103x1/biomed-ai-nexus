@@ -1,16 +1,19 @@
 """
 utils.image_model
 =================
-Deep-learning image module: a pretrained MobileNetV2 CNN + Grad-CAM.
+Deep-learning image module: a pretrained **MobileNetV2** CNN served through
+**ONNX Runtime**.
 
-The professor's brief asks for a *demonstration* CNN that can: preprocess an
-uploaded biomedical image, run inference, report class probabilities and
-inference time, and explain the decision with a Grad-CAM heatmap.
+Why ONNX Runtime instead of TensorFlow? The image brief asks for a pretrained
+CNN with preprocessing, inference, class probabilities, an inference-time
+read-out and an explainability heatmap. TensorFlow is too heavy for free cloud
+hosting (it broke the build). ONNX Runtime (~a few MB) runs the very same
+MobileNetV2 architecture, so the full pipeline works online *and* locally.
 
-TensorFlow is imported **lazily** (inside methods) so that the rest of the
-Streamlit app — tabular prediction, dashboard, evaluation — keeps working even
-on a machine where TensorFlow is not installed. ``tensorflow_available()`` lets
-the UI show a friendly message instead of crashing.
+Explainability uses **occlusion sensitivity**: patches of the image are masked
+one at a time and the drop in the predicted-class probability is measured,
+producing a heatmap of the regions the network relies on (a model-agnostic
+cousin of Grad-CAM that needs no gradients).
 """
 from __future__ import annotations
 
@@ -19,16 +22,24 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from config import GRADCAM_LAYER, IMAGE_SIZE
+from config import IMAGE_SIZE, MODELS_DIR
 from utils.logger import get_logger
 
 log = get_logger("image_model")
 
+_MODEL_PATH = MODELS_DIR / "cnn" / "mobilenetv2.onnx"
+_LABELS_PATH = MODELS_DIR / "cnn" / "imagenet_classes.txt"
 
-def tensorflow_available() -> bool:
-    """True if TensorFlow is installed on this machine (without importing it)."""
+# torchvision-style ImageNet normalisation expected by the ONNX MobileNetV2.
+_MEAN = np.array([0.485, 0.456, 0.406], dtype=np.float32)
+_STD = np.array([0.229, 0.224, 0.225], dtype=np.float32)
+
+
+def onnx_available() -> bool:
+    """True if ONNX Runtime is installed and the model file is present."""
     import importlib.util
-    return importlib.util.find_spec("tensorflow") is not None
+    return (importlib.util.find_spec("onnxruntime") is not None
+            and _MODEL_PATH.exists())
 
 
 @dataclass
@@ -38,111 +49,124 @@ class ImagePrediction:
     top_labels: list[str]
     top_probs: list[float]
     inference_ms: float
-    heatmap: np.ndarray | None        # HxW float [0,1], or None if Grad-CAM failed
+    heatmap: np.ndarray | None        # HxW float [0,1], or None if it failed
+
+
+def _softmax(x: np.ndarray) -> np.ndarray:
+    e = np.exp(x - x.max(axis=-1, keepdims=True))
+    return e / e.sum(axis=-1, keepdims=True)
 
 
 class CNNImageClassifier:
-    """Wraps a pretrained MobileNetV2 and provides Grad-CAM explanations.
+    """Pretrained MobileNetV2 (ONNX) with occlusion-based explainability.
 
-    The model is built once and cached on the instance. In the Streamlit layer
-    the whole object is cached with ``@st.cache_resource``.
+    Cached on the Streamlit side with ``@st.cache_resource`` so the model is
+    built only once per session.
     """
 
     def __init__(self) -> None:
-        self._model = None
-        self._preprocess = None
-        self._decode = None
+        self._session = None
+        self._input_name: str = ""
+        self._labels: list[str] = []
 
     # ------------------------------------------------------------------ #
     def load(self) -> "CNNImageClassifier":
-        """Build MobileNetV2 (ImageNet weights). Downloads weights on first run."""
-        from tensorflow.keras.applications.mobilenet_v2 import (
-            MobileNetV2, preprocess_input, decode_predictions,
-        )
+        """Create the ONNX Runtime session and load the ImageNet labels."""
+        import onnxruntime as ort
 
-        self._model = MobileNetV2(weights="imagenet", include_top=True)
-        self._preprocess = preprocess_input
-        self._decode = decode_predictions
-        log.info("MobileNetV2 loaded (input=%s)", IMAGE_SIZE)
+        self._session = ort.InferenceSession(
+            str(_MODEL_PATH), providers=["CPUExecutionProvider"]
+        )
+        self._input_name = self._session.get_inputs()[0].name
+        self._labels = _LABELS_PATH.read_text(encoding="utf-8").splitlines()
+        log.info("MobileNetV2 (ONNX) loaded — %d classes", len(self._labels))
         return self
 
     @property
     def is_ready(self) -> bool:
-        return self._model is not None
+        return self._session is not None
 
     # ------------------------------------------------------------------ #
-    def preprocess(self, image: "np.ndarray") -> np.ndarray:
-        """Resize -> RGB -> MobileNetV2 normalisation. Returns a (1,224,224,3) batch.
-
-        ``image`` is an HxWx3 uint8 RGB array (as produced by PIL/OpenCV).
-        """
+    def _preprocess(self, image: np.ndarray) -> np.ndarray:
+        """RGB uint8 HxWx3 -> normalised (1,3,224,224) float32 batch."""
         import cv2
 
-        if image.ndim == 2:                      # greyscale -> 3 channels
+        if image.ndim == 2:
             image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
-        if image.shape[-1] == 4:                 # RGBA -> RGB
+        if image.shape[-1] == 4:
             image = cv2.cvtColor(image, cv2.COLOR_RGBA2RGB)
         resized = cv2.resize(image, IMAGE_SIZE, interpolation=cv2.INTER_AREA)
-        batch = np.expand_dims(resized.astype("float32"), axis=0)
-        return self._preprocess(batch.copy())    # type: ignore[misc]
+        x = resized.astype(np.float32) / 255.0
+        x = (x - _MEAN) / _STD
+        x = np.transpose(x, (2, 0, 1))[np.newaxis, ...]   # HWC -> NCHW
+        return np.ascontiguousarray(x, dtype=np.float32)
+
+    def _run(self, batch: np.ndarray) -> np.ndarray:
+        """Forward pass -> softmax probabilities (N, 1000)."""
+        logits = self._session.run(None, {self._input_name: batch})[0]
+        return _softmax(logits)
 
     # ------------------------------------------------------------------ #
-    def predict(self, image: np.ndarray, top_k: int = 5) -> ImagePrediction:
-        """Run inference + Grad-CAM and measure the inference time."""
+    def predict(self, image: np.ndarray, top_k: int = 5,
+                explain: bool = True) -> ImagePrediction:
+        """Run inference (timed) and, optionally, an occlusion heatmap."""
         if not self.is_ready:
             raise RuntimeError("CNN model not loaded. Call load() first.")
 
-        batch = self.preprocess(image)
+        batch = self._preprocess(image)
         t0 = time.perf_counter()
-        preds = self._model.predict(batch, verbose=0)   # type: ignore[union-attr]
+        probs = self._run(batch)[0]
         inference_ms = (time.perf_counter() - t0) * 1000.0
 
-        decoded = self._decode(preds, top=top_k)[0]      # type: ignore[misc]
-        labels = [d[1].replace("_", " ") for d in decoded]
-        probs = [float(d[2]) for d in decoded]
+        order = np.argsort(probs)[::-1][:top_k]
+        labels = [self._labels[i] if i < len(self._labels) else str(i) for i in order]
+        top_probs = [float(probs[i]) for i in order]
 
         heatmap = None
-        try:
-            class_idx = int(np.argmax(preds[0]))
-            heatmap = self._grad_cam(batch, class_idx)
-        except Exception as exc:                          # pragma: no cover
-            log.warning("Grad-CAM failed: %s", exc)
+        if explain:
+            try:
+                heatmap = self._occlusion_saliency(image, int(order[0]),
+                                                   float(probs[order[0]]))
+            except Exception as exc:                      # pragma: no cover
+                log.warning("Occlusion saliency failed: %s", exc)
 
-        return ImagePrediction(labels, probs, inference_ms, heatmap)
+        return ImagePrediction(labels, top_probs, inference_ms, heatmap)
 
     # ------------------------------------------------------------------ #
-    def _grad_cam(self, batch: np.ndarray, class_idx: int,
-                  layer_name: str = GRADCAM_LAYER) -> np.ndarray:
-        """Compute a Grad-CAM heatmap for ``class_idx`` (returns HxW in [0,1])."""
-        import tensorflow as tf
+    def _occlusion_saliency(self, image: np.ndarray, class_idx: int,
+                            base_prob: float, grid: int = 8) -> np.ndarray:
+        """Mask each cell of a grid and measure the drop in class probability.
 
-        grad_model = tf.keras.models.Model(
-            self._model.inputs,                           # type: ignore[union-attr]
-            [self._model.get_layer(layer_name).output,    # type: ignore[union-attr]
-             self._model.output],                         # type: ignore[union-attr]
-        )
-        with tf.GradientTape() as tape:
-            conv_out, predictions = grad_model(batch)
-            loss = predictions[:, class_idx]
+        All occluded variants are batched into a single ONNX call for speed.
+        Returns a ``grid x grid`` heatmap normalised to [0, 1].
+        """
+        base = self._preprocess(image)[0]                 # (3,224,224)
+        h, w = base.shape[1], base.shape[2]
+        cell_h, cell_w = h // grid, w // grid
 
-        grads = tape.gradient(loss, conv_out)
-        pooled = tf.reduce_mean(grads, axis=(0, 1, 2))
-        conv_out = conv_out[0]
-        heatmap = conv_out @ pooled[..., tf.newaxis]
-        heatmap = tf.squeeze(heatmap)
-        heatmap = tf.maximum(heatmap, 0) / (tf.reduce_max(heatmap) + 1e-8)
-        return heatmap.numpy()
+        variants = np.repeat(base[np.newaxis, ...], grid * grid, axis=0)
+        for r in range(grid):
+            for c in range(grid):
+                variants[r * grid + c, :,
+                         r * cell_h:(r + 1) * cell_h,
+                         c * cell_w:(c + 1) * cell_w] = 0.0   # mask (mean ~ 0)
+
+        probs = self._run(np.ascontiguousarray(variants))[:, class_idx]
+        drop = np.clip(base_prob - probs, 0, None).reshape(grid, grid)
+        if drop.max() > 0:
+            drop = drop / drop.max()
+        return drop
 
 
 def overlay_heatmap(image: np.ndarray, heatmap: np.ndarray,
-                    alpha: float = 0.4) -> np.ndarray:
-    """Blend a Grad-CAM heatmap over the original RGB image (returns uint8 RGB)."""
+                    alpha: float = 0.45) -> np.ndarray:
+    """Blend a saliency heatmap over the original RGB image (uint8 RGB out)."""
     import cv2
 
     h, w = image.shape[:2]
-    hm = cv2.resize(heatmap, (w, h))
-    hm = np.uint8(255 * hm)
-    hm_color = cv2.applyColorMap(hm, cv2.COLORMAP_JET)
+    hm = cv2.resize(heatmap.astype(np.float32), (w, h), interpolation=cv2.INTER_CUBIC)
+    hm = np.clip(hm, 0, 1)
+    hm_color = cv2.applyColorMap(np.uint8(255 * hm), cv2.COLORMAP_JET)
     hm_color = cv2.cvtColor(hm_color, cv2.COLOR_BGR2RGB)
     blended = cv2.addWeighted(image.astype("uint8"), 1 - alpha, hm_color, alpha, 0)
     return blended

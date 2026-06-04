@@ -1,7 +1,7 @@
 """
 app.py
 ======
-BioMed AI Nexus — Streamlit entry-point.
+HepatoScope — Streamlit entry-point.
 
 Responsibilities:
     * configure the page + inject the theme (light / dark toggle),
@@ -16,7 +16,7 @@ from __future__ import annotations
 import streamlit as st
 
 from config import (
-    APP_ICON, APP_SUBTITLE, APP_TITLE, AUTHOR_PROGRAM, MODEL_REGISTRY,
+    APP_ICON, APP_SUBTITLE, APP_TITLE, AUTHOR_BYLINE, AUTHOR_PROGRAM, MODEL_REGISTRY,
 )
 from pages import about, dashboard, evaluation, home, image_analysis, prediction
 from utils.logger import get_logger
@@ -67,9 +67,9 @@ def _sidebar() -> str:
             f"<div style='display:flex;align-items:center;gap:.7rem;padding:.2rem 0 .1rem'>"
             f"<div style='font-size:2rem;line-height:1'>{APP_ICON}</div>"
             f"<div><div style=\"font-family:'Spectral',serif;font-weight:700;"
-            f"font-size:1.32rem;line-height:1.05;letter-spacing:-.01em\">{APP_TITLE}</div>"
-            f"<div style='font-size:.74rem;color:var(--muted);letter-spacing:.02em'>"
-            f"{APP_SUBTITLE}</div></div></div>",
+            f"font-size:1.34rem;line-height:1.05;letter-spacing:-.01em\">{APP_TITLE}</div>"
+            f"<div style='font-size:.72rem;color:var(--muted);letter-spacing:.02em'>"
+            f"{AUTHOR_BYLINE}</div></div></div>",
             unsafe_allow_html=True,
         )
         st.divider()
@@ -80,26 +80,25 @@ def _sidebar() -> str:
             label_visibility="collapsed",
         )
         st.divider()
-        dark = st.toggle("Dark mode", value=True)
         n_loaded = len(get_manager().estimators)
         st.markdown(
-            f"<div style='font-size:.76rem;color:var(--muted);line-height:1.7'>"
+            f"<div style='font-size:.74rem;color:var(--muted);line-height:1.7'>"
             f"<span style='color:var(--primary)'>●</span> {n_loaded}/{len(MODEL_REGISTRY)} "
             f"models loaded<br>{AUTHOR_PROGRAM}</div>",
             unsafe_allow_html=True,
         )
-        return choice, dark  # type: ignore[return-value]
+        return choice
 
 
 def main() -> None:
-    choice, dark = _sidebar()
-    inject_css(dark=dark)
-    visualization.set_theme(dark)
+    choice = _sidebar()
+    inject_css(dark=True)
+    visualization.set_theme(True)
 
     ctx = {
         "manager": get_manager(),
         "dataset": get_dataset(),
-        "dark": dark,
+        "dark": True,
     }
 
     # The Home/Dashboard pages need the dataset; guard gracefully.

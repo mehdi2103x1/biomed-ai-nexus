@@ -1,7 +1,7 @@
 """
 config.py
 =========
-Central configuration for the BioMed AI Nexus platform.
+Central configuration for the HepatoScope platform.
 
 Keeping every path, column name and tunable constant in a single module avoids
 "magic strings" scattered across the code base and makes the project easy to
@@ -20,7 +20,8 @@ MODELS_DIR: Path = ROOT_DIR / "models"
 ASSETS_DIR: Path = ROOT_DIR / "assets"
 LOG_DIR: Path = ROOT_DIR / "logs"
 
-RAW_DATASET: Path = DATA_DIR / "ilpd_raw.csv"
+RAW_DATASET: Path = DATA_DIR / "liver_raw.csv"
+DATASET_NAME: str = "Liver Patient Dataset (30K)"
 HISTORY_CSV: Path = DATA_DIR / "historical_predictions.csv"
 METRICS_JSON: Path = MODELS_DIR / "metrics.json"
 PREPROCESSOR_PATH: Path = MODELS_DIR / "preprocessor.pkl"
@@ -110,9 +111,10 @@ GRADCAM_LAYER: str = "Conv_1"                      # last conv layer in MobileNe
 # --------------------------------------------------------------------------- #
 # UI / theming
 # --------------------------------------------------------------------------- #
-APP_TITLE: str = "BioMed AI Nexus"
-APP_SUBTITLE: str = "Liver Disease Prediction Platform"
+APP_TITLE: str = "HepatoScope"
+APP_SUBTITLE: str = "Liver Disease Intelligence Platform"
 APP_ICON: str = "🩺"
+AUTHOR_BYLINE: str = "by El Mehdi Mansouri"
 PRIMARY_COLOR: str = "#16b8a6"     # clinical teal
 ACCENT_COLOR: str = "#0e9384"      # deep teal
 DANGER_COLOR: str = "#f06a82"      # clinical red (disease / positive)

@@ -1,7 +1,7 @@
 """
 train.py
 ========
-Offline training entry-point for BioMed AI Nexus.
+Offline training entry-point for HepatoScope.
 
 It performs the full supervised-learning pipeline on the ILPD dataset:
 

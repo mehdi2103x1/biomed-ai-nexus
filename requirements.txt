@@ -17,14 +17,13 @@ xgboost>=2.0
 plotly>=5.20
 matplotlib>=3.8
 
-# --- Image / deep learning ---
+# --- Image / deep learning (CNN image analysis) ---
 opencv-python-headless>=4.9
 pillow>=10.0
-# Image Analysis page (CNN + Grad-CAM). tensorflow-cpu is the lighter CPU-only
-# build (no CUDA libs) suited to cloud hosting. Pinned >=2.18 so a wheel exists
-# for the cloud's Python (3.12/3.13). If the free tier still runs out of memory,
-# comment this line out again — every other page keeps working.
-tensorflow-cpu>=2.18
+# ONNX Runtime serves the pretrained MobileNetV2 CNN. It is lightweight (a few MB)
+# so the Image Analysis page works on the free cloud tier — unlike TensorFlow,
+# which exceeds the tier's limits.
+onnxruntime>=1.17
 
 # --- Reporting ---
 fpdf2>=2.7

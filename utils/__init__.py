@@ -1,1 +1,1 @@
-"""Utility package for BioMed AI Nexus (preprocessing, models, viz, PDF, history)."""
+"""Utility package for HepatoScope (preprocessing, models, viz, PDF, history)."""

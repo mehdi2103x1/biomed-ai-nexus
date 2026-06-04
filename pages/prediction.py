@@ -29,46 +29,36 @@ _RISK_COLORS = {
 }
 
 
+def _num(label: str, key: str) -> float:
+    """A number input driven by the FEATURE_META ranges."""
+    m = FEATURE_META[key]
+    return st.number_input(label, min_value=float(m["min"]), max_value=float(m["max"]),
+                           value=float(m["default"]), step=float(m["step"]))
+
+
 def _build_form() -> dict:
-    """Render the medical form and return the collected raw inputs."""
-    st.markdown("#### 🧾 Patient biological & clinical data")
+    """Render the medical form (number fields only) and return raw inputs."""
+    section("Patient biological & clinical data")
     form: dict = {}
 
     with st.form("patient_form"):
         c1, c2, c3 = st.columns(3)
         with c1:
-            form["Age"] = st.slider("Age (years)", 1, 100,
-                                    int(FEATURE_META["Age"]["default"]))
+            form["Age"] = _num("Age (years)", "Age")
             form["Gender"] = st.radio("Gender", ["Male", "Female"], horizontal=True)
-            form["Total_Bilirubin"] = st.number_input(
-                "Total Bilirubin (mg/dL)", 0.0, 80.0,
-                FEATURE_META["Total_Bilirubin"]["default"], 0.1)
-            form["Direct_Bilirubin"] = st.number_input(
-                "Direct Bilirubin (mg/dL)", 0.0, 25.0,
-                FEATURE_META["Direct_Bilirubin"]["default"], 0.1)
+            form["Total_Bilirubin"] = _num("Total Bilirubin (mg/dL)", "Total_Bilirubin")
+            form["Direct_Bilirubin"] = _num("Direct Bilirubin (mg/dL)", "Direct_Bilirubin")
         with c2:
-            form["Alkaline_Phosphotase"] = st.number_input(
-                "Alkaline Phosphotase (IU/L)", 50.0, 2200.0,
-                FEATURE_META["Alkaline_Phosphotase"]["default"], 1.0)
-            form["Alamine_Aminotransferase"] = st.number_input(
-                "Alamine Aminotransferase / ALT (IU/L)", 1.0, 2000.0,
-                FEATURE_META["Alamine_Aminotransferase"]["default"], 1.0)
-            form["Aspartate_Aminotransferase"] = st.number_input(
-                "Aspartate Aminotransferase / AST (IU/L)", 1.0, 5000.0,
-                FEATURE_META["Aspartate_Aminotransferase"]["default"], 1.0)
+            form["Alkaline_Phosphotase"] = _num("Alkaline Phosphotase (IU/L)", "Alkaline_Phosphotase")
+            form["Alamine_Aminotransferase"] = _num("Alamine Aminotransferase / ALT (IU/L)", "Alamine_Aminotransferase")
+            form["Aspartate_Aminotransferase"] = _num("Aspartate Aminotransferase / AST (IU/L)", "Aspartate_Aminotransferase")
         with c3:
-            form["Total_Proteins"] = st.slider(
-                "Total Proteins (g/dL)", 1.0, 12.0,
-                FEATURE_META["Total_Proteins"]["default"], 0.1)
-            form["Albumin"] = st.slider(
-                "Albumin (g/dL)", 0.5, 7.0,
-                FEATURE_META["Albumin"]["default"], 0.1)
-            form["Albumin_and_Globulin_Ratio"] = st.slider(
-                "Albumin / Globulin Ratio", 0.1, 3.0,
-                FEATURE_META["Albumin_and_Globulin_Ratio"]["default"], 0.01)
+            form["Total_Proteins"] = _num("Total Proteins (g/dL)", "Total_Proteins")
+            form["Albumin"] = _num("Albumin (g/dL)", "Albumin")
+            form["Albumin_and_Globulin_Ratio"] = _num("Albumin / Globulin Ratio", "Albumin_and_Globulin_Ratio")
 
         patient_id = st.text_input("Patient ID / name (optional)", "")
-        submitted = st.form_submit_button("🔬 Predict liver disease",
+        submitted = st.form_submit_button("Predict liver disease",
                                           use_container_width=True)
 
     form["_submitted"] = submitted
@@ -96,7 +86,6 @@ def render(ctx: dict) -> None:
     form = _build_form()
 
     if not form["_submitted"]:
-        st.info("Fill in the form and press **Predict** to run all five models.")
         return
 
     # --- Validation ------------------------------------------------------- #

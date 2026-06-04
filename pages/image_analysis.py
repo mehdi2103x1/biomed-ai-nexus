@@ -1,16 +1,14 @@
 """
 pages.image_analysis
 ====================
-Deep-learning image-analysis demonstration.
+Deep-learning image-analysis module.
 
-Upload an image -> automatic preprocessing (resize/normalise) -> MobileNetV2
-inference -> class probabilities, confidence and inference time -> Grad-CAM
-heatmap that explains where the network "looked".
+Upload an image -> automatic preprocessing (resize / normalise) -> MobileNetV2
+inference (ONNX Runtime) -> class probabilities, confidence and inference time
+-> an explainability heatmap (occlusion sensitivity) showing the regions that
+drive the prediction.
 
-Because the project has no proprietary medical-image dataset, this is a
-*pretrained-CNN demonstration* module (exactly as the brief allows). TensorFlow
-is loaded lazily; if it is not installed the page shows a clear message instead
-of crashing the rest of the app.
+Runs fully online: ONNX Runtime is lightweight enough for free cloud hosting.
 """
 from __future__ import annotations
 
@@ -19,81 +17,63 @@ import streamlit as st
 from PIL import Image
 
 from utils.history import append_record
-from utils.image_model import (
-    CNNImageClassifier, overlay_heatmap, tensorflow_available,
-)
-from utils.styles import hero, render_kpis
+from utils.image_model import CNNImageClassifier, onnx_available, overlay_heatmap
+from utils.styles import hero, render_kpis, section
 from utils.visualization import cnn_probability_bar
 
 
 @st.cache_resource(show_spinner=False)
 def _get_classifier() -> CNNImageClassifier:
-    """Build + cache MobileNetV2 once per session (weights download on 1st run)."""
+    """Build + cache the MobileNetV2 ONNX session once per session."""
     return CNNImageClassifier().load()
 
 
 def render(ctx: dict) -> None:
     hero("Image Analysis",
-         "Pretrained CNN (MobileNetV2) inference with Grad-CAM explainability")
+         "Pretrained MobileNetV2 CNN inference with explainable saliency mapping")
 
-    if not tensorflow_available():
-        st.info(
-            "🧠 **Deep-learning image module — full pipeline implemented.**\n\n"
-            "This page runs a pretrained **MobileNetV2** CNN with automatic "
-            "preprocessing, inference, a probability chart, inference-time "
-            "measurement and a **Grad-CAM** explainability heatmap "
-            "(see `utils/image_model.py`).\n\n"
-            "It requires **TensorFlow**, which is disabled on this free cloud "
-            "deployment because its size exceeds the host's memory limit. To run "
-            "this module, launch the app locally after `pip install tensorflow` — "
-            "all other pages (tabular prediction, model evaluation, dashboard) are "
-            "fully functional here online."
+    if not onnx_available():
+        st.warning(
+            "The image model file is unavailable in this deployment. The full "
+            "CNN pipeline (preprocessing → inference → saliency) is implemented "
+            "in `utils/image_model.py`."
         )
-        with st.expander("📄 What this module does (architecture)"):
-            st.markdown(
-                "1. **Upload** a `jpg/jpeg/png` image.\n"
-                "2. **Preprocess** — resize to 224×224, RGB conversion, MobileNetV2 normalisation.\n"
-                "3. **Inference** — forward pass through MobileNetV2 (ImageNet weights).\n"
-                "4. **Outputs** — predicted class, confidence, top-k probability chart, inference time (ms).\n"
-                "5. **Explainability** — Grad-CAM heatmap overlay highlighting the regions "
-                "that drove the prediction."
-            )
         return
 
     st.markdown(
-        "Upload any image (`jpg`, `jpeg`, `png`). The CNN performs automatic "
-        "**resize → normalisation → inference**, then a **Grad-CAM** heatmap "
-        "highlights the regions driving the prediction."
+        "Upload an image (`jpg`, `jpeg`, `png`). The network performs automatic "
+        "**resize → normalisation → inference**, then an **occlusion-sensitivity** "
+        "heatmap highlights the regions driving the prediction."
     )
 
-    uploaded = st.file_uploader("📤 Upload an image", type=["jpg", "jpeg", "png"])
+    uploaded = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
     if uploaded is None:
-        st.info("Awaiting an image upload to run the CNN demonstration.")
+        st.info("Upload an image to run the CNN.")
         return
 
     image = np.array(Image.open(uploaded).convert("RGB"))
 
-    col_img, col_cfg = st.columns([1.4, 1])
+    col_img, col_cfg = st.columns([1.5, 1])
     with col_img:
         st.image(image, caption="Uploaded image", use_container_width=True)
     with col_cfg:
-        top_k = st.slider("Top-k classes", 3, 10, 5)
-        show_cam = st.checkbox("Show Grad-CAM overlay", value=True)
-        run = st.button("🔮 Predict", use_container_width=True)
+        top_k = st.selectbox("Classes to rank", [3, 5, 10], index=1)
+        show_cam = st.checkbox("Show saliency heatmap", value=True)
+        run = st.button("Run analysis", use_container_width=True)
 
     if not run:
         return
 
-    progress = st.progress(0, text="Loading CNN…")
+    progress = st.progress(0, text="Loading model…")
     with st.spinner("Running MobileNetV2 inference…"):
         clf = _get_classifier()
         progress.progress(45, text="Preprocessing & inference…")
-        result = clf.predict(image, top_k=top_k)
+        result = clf.predict(image, top_k=top_k, explain=show_cam)
         progress.progress(100, text="Done")
     progress.empty()
 
     # --- KPIs ------------------------------------------------------------- #
-    st.markdown("### 🧠 Inference result")
+    section("Inference result")
     render_kpis([
         {"icon": "🏷️", "value": result.top_labels[0], "label": "Predicted class"},
         {"icon": "🎯", "value": f"{result.top_probs[0]:.1%}", "label": "Confidence"},
@@ -101,7 +81,7 @@ def render(ctx: dict) -> None:
         {"icon": "🔢", "value": f"{top_k}", "label": "Classes ranked"},
     ])
 
-    # --- Probability chart + Grad-CAM ------------------------------------ #
+    # --- Probability chart + saliency ------------------------------------ #
     c1, c2 = st.columns(2)
     with c1:
         st.plotly_chart(
@@ -111,10 +91,10 @@ def render(ctx: dict) -> None:
     with c2:
         if show_cam and result.heatmap is not None:
             overlay = overlay_heatmap(image, result.heatmap)
-            st.image(overlay, caption="Grad-CAM — model attention",
+            st.image(overlay, caption="Saliency — regions driving the prediction",
                      use_container_width=True)
         elif show_cam:
-            st.info("Grad-CAM could not be computed for this image.")
+            st.info("Saliency could not be computed for this image.")
 
     append_record({
         "source": "image",
@@ -122,17 +102,16 @@ def render(ctx: dict) -> None:
         "probability": round(result.top_probs[0], 4),
         "confidence": round(result.top_probs[0], 4),
         "risk": "—",
-        "best_model": "MobileNetV2",
+        "best_model": "MobileNetV2 (ONNX)",
         "age": "",
         "gender": "",
         "details": f"{result.inference_ms:.0f}ms",
     })
-    st.toast("Image inference saved to history ✅")
+    st.toast("Image inference saved to history")
 
     st.caption(
-        "ℹ️ MobileNetV2 is pretrained on **ImageNet** (everyday objects), so on a "
-        "true medical scan the labels are illustrative. The point of this module "
-        "is to demonstrate the full CNN + Grad-CAM pipeline (preprocessing, "
-        "inference, timing, explainability) ready to be fine-tuned on a real "
-        "radiology dataset."
+        "MobileNetV2 is pretrained on ImageNet (everyday objects), so labels on a "
+        "true medical scan are illustrative. This module demonstrates the complete "
+        "CNN pipeline — preprocessing, inference, timing and explainability — ready "
+        "to be fine-tuned on a dedicated radiology dataset."
     )

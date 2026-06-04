@@ -1,7 +1,7 @@
 """
 utils.styles
 ============
-The visual design system for BioMed AI Nexus.
+The visual design system for HepatoScope.
 
 Aesthetic direction — *refined clinical instrument*:
   * a calm deep-slate canvas (dark) or warm clinical paper (light), never neon;
@@ -20,17 +20,19 @@ from __future__ import annotations
 
 import streamlit as st
 
+from config import APP_TITLE, AUTHOR_BYLINE
+
 # Two cohesive palettes toggled by the sidebar switch. Only the CSS custom
 # properties change between them — every component reads from the variables.
 _DARK = {
-    "bg": "#0b1118", "bg2": "#0e1620", "surface": "#141d28", "surface2": "#1a2533",
-    "border": "#243240", "border_soft": "#1d2835",
-    "text": "#e9eff5", "muted": "#8b9aa9", "faint": "#5d6b79",
-    "primary": "#16b8a6", "primary_deep": "#0e9384", "primary_soft": "rgba(22,184,166,.14)",
-    "danger": "#f06a82", "danger_soft": "rgba(240,106,130,.14)",
-    "ok": "#2dbb7f", "warn": "#e0a82e", "high": "#f5853f",
-    "shadow": "0 18px 40px -22px rgba(0,0,0,.75)",
-    "glow": "rgba(22,184,166,.20)",
+    "bg": "#0a1020", "bg2": "#0c1426", "surface": "#111c32", "surface2": "#172339",
+    "border": "#243450", "border_soft": "#1b2740",
+    "text": "#e9eef7", "muted": "#94a4bd", "faint": "#5e6f8a",
+    "primary": "#1ec8b4", "primary_deep": "#14a896", "primary_soft": "rgba(30,200,180,.14)",
+    "danger": "#fb6f86", "danger_soft": "rgba(251,111,134,.14)",
+    "ok": "#34c98a", "warn": "#e7b23e", "high": "#f6894a",
+    "shadow": "0 20px 46px -24px rgba(0,0,0,.85)",
+    "glow": "rgba(30,200,180,.18)",
 }
 _LIGHT = {
     "bg": "#f3f4f1", "bg2": "#eceee9", "surface": "#ffffff", "surface2": "#f7f8f5",
@@ -89,8 +91,16 @@ def inject_css(dark: bool = True) -> None:
           background-image:{_GRAIN}; background-size:160px; opacity:{grain_opacity};
         }}
         .block-container {{ padding-top: 2.4rem; padding-bottom: 3rem; max-width: 1180px; }}
-        #MainMenu, footer, [data-testid="stStatusWidget"] {{ visibility: hidden; }}
-        [data-testid="stHeader"] {{ background: transparent; }}
+        /* hide Streamlit chrome: main menu, footer, status, and the Deploy button */
+        #MainMenu, footer, [data-testid="stStatusWidget"],
+        [data-testid="stToolbar"], [data-testid="stDeployButton"],
+        .stDeployButton, [data-testid="stToolbarActions"] {{ display: none !important; }}
+        [data-testid="stHeader"] {{ background: transparent; height: 0; }}
+
+        /* equal-height cards: stretch columns so KPI/cards align on a row */
+        [data-testid="stHorizontalBlock"] {{ align-items: stretch; }}
+        [data-testid="stHorizontalBlock"] > [data-testid="column"] {{ display: flex; flex-direction: column; }}
+        [data-testid="stHorizontalBlock"] > [data-testid="column"] > div {{ height: 100%; }}
 
         /* ---------- Typography ---------- */
         h1, h2, h3, h4 {{ font-family: var(--serif); letter-spacing:-.01em; color: var(--text); font-weight:600; }}
@@ -232,8 +242,14 @@ def inject_css(dark: bool = True) -> None:
 # --------------------------------------------------------------------------- #
 # Markup helpers
 # --------------------------------------------------------------------------- #
-def hero(title: str, subtitle: str, eyebrow: str = "BioMed AI Nexus") -> None:
-    """Refined header band: eyebrow · serif title · accent rule · subtitle."""
+def hero(title: str, subtitle: str, eyebrow: str | None = None) -> None:
+    """Refined header band: eyebrow · serif title · accent rule · subtitle.
+
+    The eyebrow defaults to the product name + author byline, so the branding
+    and authorship appear (small) on every page.
+    """
+    if eyebrow is None:
+        eyebrow = f"{APP_TITLE} · {AUTHOR_BYLINE}"
     st.markdown(
         f"<div class='hero'><div class='eyebrow'>{eyebrow}</div>"
         f"<h1>{title}</h1><div class='accent'></div><p>{subtitle}</p></div>",

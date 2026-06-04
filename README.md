@@ -1,8 +1,8 @@
-# 🩺 BioMed AI Nexus — Liver Disease Prediction Platform
+# 🩺 HepatoScope — Liver Disease Prediction Platform
 
 A modern, interactive **biomedical AI web application** built with Streamlit that
 predicts **liver disease** from routine blood-panel biomarkers, demonstrates a
-**deep-learning image-analysis** pipeline (MobileNetV2 + Grad-CAM), compares five
+**deep-learning image-analysis** pipeline (MobileNetV2 via ONNX + saliency), compares five
 machine-learning models, and explains every prediction.
 
 > **Module:** Machine Learning — Supervised Learning · **Programme:** Ingénieur Génie Biomédical (UM6SS)
@@ -15,8 +15,8 @@ machine-learning models, and explains every prediction.
 | Page | What it does |
 |------|--------------|
 | 🏠 **Home** | Landing page, objectives, KPI cards, workflow diagram, dataset overview |
-| 🔬 **Liver Disease Prediction** | Medical form (number inputs, sliders, dropdown, radio) → preprocessing → 5-model soft-vote → class, probability gauge, confidence, risk level, feature importance, model-comparison table, **PDF report** |
-| 🖼️ **Image Analysis** | Upload image → MobileNetV2 inference → top-k probabilities, inference time, **Grad-CAM** heatmap |
+| 🔬 **Liver Disease Prediction** | Medical form (number inputs, dropdown, radio) → preprocessing → 5-model soft-vote → class, probability gauge, confidence, risk level, feature importance, model-comparison table, **PDF report** |
+| 🖼️ **Image Analysis** | Upload image → MobileNetV2 (ONNX) inference → top-k probabilities, inference time, **saliency** heatmap |
 | 📊 **Model Evaluation** | Accuracy / Precision / Recall / F1 / AUC, ROC curves, confusion matrices, classification reports, training time, best hyper-parameters, ranking |
 | 📈 **Dashboard** | KPIs (total / positive / negative / avg confidence), pie + bar + line + distribution charts, full history table, CSV export |
 | ℹ️ **About** | Description, tech stack, ML pipeline, architecture, author |
@@ -27,15 +27,13 @@ machine-learning models, and explains every prediction.
 
 ## 🧬 Dataset
 
-**Indian Liver Patient Dataset (ILPD)** — 583 records, 10 clinical features
-(Age, Gender, Total/Direct Bilirubin, Alkaline Phosphotase, ALT, AST, Total
-Proteins, Albumin, A/G Ratio). Target: *Liver Disease* vs *No Liver Disease*.
+**Liver Patient Dataset** — 30,691 records (≈19,000 after de-duplication), 10
+clinical features (Age, Gender, Total/Direct Bilirubin, Alkaline Phosphotase,
+ALT, AST, Total Proteins, Albumin, A/G Ratio). Target: *Liver Disease* vs
+*No Liver Disease*. This large dataset (an extension of the Indian Liver Patient
+Dataset) lets the ensemble models reach ~99% accuracy.
 
-The dataset is bundled at `data/ilpd_raw.csv`. To re-download:
-
-```bash
-python data/load_data.py          # or --force to refresh
-```
+The dataset is bundled at `data/liver_raw.csv`.
 
 ---
 
@@ -52,7 +50,7 @@ biomed_ai_nexus/
 ├── pages/                  # home, prediction, image_analysis, evaluation, dashboard, about
 ├── utils/                  # preprocessing, models, visualization, image_model,
 │                           #   pdf_report, history, styles, logger
-├── data/                   # ilpd_raw.csv, load_data.py, historical_predictions.csv
+├── data/                   # liver_raw.csv, load_data.py, historical_predictions.csv
 ├── models/                 # *.pkl estimators, preprocessor.pkl, metrics.json
 ├── notebooks/              # exploratory_analysis.ipynb
 ├── assets/                 # generated figures for the report
@@ -83,11 +81,10 @@ Then open **http://localhost:8501**.
 > The repository already ships with trained models in `models/`, so you can run
 > step 4 directly. Re-run `train.py` only if you change the data or models.
 
-### TensorFlow is optional
-The tabular prediction, evaluation and dashboard pages work **without**
-TensorFlow. Installing it (`pip install tensorflow`) unlocks the **Image
-Analysis** page (CNN + Grad-CAM). If TensorFlow is missing, that page shows a
-friendly message instead of crashing.
+### Image module
+The Image Analysis page runs MobileNetV2 through **ONNX Runtime** (lightweight),
+so the full CNN pipeline — preprocessing, inference, timing and a saliency
+heatmap — works both locally and on free cloud hosting. No TensorFlow needed.
 
 ---
 
@@ -101,7 +98,7 @@ URL like `https://biomed-ai-nexus.streamlit.app` that anyone can open in a brows
 cd biomed_ai_nexus
 git init
 git add .
-git commit -m "BioMed AI Nexus"
+git commit -m "HepatoScope"
 git branch -M main
 git remote add origin https://github.com/<your-username>/biomed-ai-nexus.git
 git push -u origin main
@@ -116,11 +113,8 @@ git push -u origin main
 ### Cloud notes
 - The trained `models/*.pkl` are committed, so the app runs immediately online —
   no training needed on the server.
-- **Memory:** the free tier has ~1 GB RAM. Full TensorFlow can be heavy. For a
-  lighter, faster cloud build, in `requirements.txt` replace
-  `tensorflow>=2.16` with `tensorflow-cpu>=2.16` (Linux). If the build still
-  runs out of memory, simply remove the TensorFlow line — every page except
-  *Image Analysis* keeps working.
+- **Lightweight:** the app uses ONNX Runtime (not TensorFlow), so it builds and
+  runs comfortably within the free tier's limits — all pages work online.
 - `historical_predictions.csv` on the free tier is **ephemeral** (resets when the
   app sleeps). That is fine for a demo.
 
@@ -151,4 +145,4 @@ a public URL too.
 This is an **academic prototype** trained on a public dataset. It is **not** a
 certified medical device and must not be used for real clinical diagnosis.
 
-**Author:** Mehdi — Ingénieur Génie Biomédical, UM6SS.
+**Author:** El Mehdi Mansouri — Ingénieur Génie Biomédical, UM6SS.

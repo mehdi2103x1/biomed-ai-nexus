@@ -171,7 +171,7 @@ def build_html() -> str:
     A = P.append
 
     A('<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">')
-    A('<title>Rapport — BioMed AI Nexus</title>')
+    A('<title>Rapport — HepatoScope</title>')
     A(CSS)
     A('</head><body>')
 
@@ -187,7 +187,7 @@ def build_html() -> str:
       <div class="centre">
         <div class="type-doc">Rapport de projet — Intelligence Artificielle</div>
         <div class="ligne"></div>
-        <div class="titre">BioMed AI Nexus<br>Plateforme intelligente de prédiction des maladies du foie</div>
+        <div class="titre">HepatoScope<br>Plateforme intelligente de prédiction des maladies du foie</div>
         <div class="sous-titre">Application web d'aide au diagnostic combinant cinq modèles de
           Machine&nbsp;Learning, un module de Deep&nbsp;Learning d'analyse d'images et un
           tableau de bord analytique interactif</div>
@@ -229,9 +229,9 @@ def build_html() -> str:
       d'une <strong>plateforme web d'intelligence artificielle biomédicale</strong>
       capable de prédire la présence d'une maladie hépatique à partir des données
       d'analyses biologiques d'un patient. L'application, baptisée
-      <strong>BioMed AI Nexus</strong> et développée en <strong>Python</strong> avec
+      <strong>HepatoScope</strong> et développée en <strong>Python</strong> avec
       le framework <strong>Streamlit</strong>, met en œuvre une chaîne complète
-      d'apprentissage supervisé sur l'<em>Indian Liver Patient Dataset</em> (ILPD).</p>
+      d'apprentissage supervisé sur le <em>Liver Patient Dataset</em> (30 691 enregistrements).</p>
       <p>Cinq modèles de classification — <strong>Decision Tree, Random Forest,
       Logistic Regression, SVM et XGBoost</strong> — sont entraînés, optimisés par
       recherche d'hyperparamètres et comparés sur un ensemble de test indépendant.
@@ -244,7 +244,7 @@ def build_html() -> str:
       <strong>AUC de ''' + f"{BEST['auc']:.3f}" + '''</strong> sur l'ensemble de
       test. Chaque prédiction est expliquée, journalisée et exportable en PDF.</p>
       <p><strong>Mots-clés :</strong> intelligence artificielle, apprentissage
-      supervisé, maladies du foie, ILPD, Scikit-Learn, XGBoost, Deep Learning,
+      supervisé, maladies du foie, Liver Patient Dataset, Scikit-Learn, XGBoost, Deep Learning,
       MobileNetV2, Grad-CAM, Streamlit, aide au diagnostic.</p>
     </section>
     ''')
@@ -258,7 +258,7 @@ def build_html() -> str:
         <div class="l1">2. Contexte et problématique <span class="pt">.............................</span> 5</div>
         <div class="l2">2.1 Les maladies du foie et les marqueurs biologiques <span class="pt">..</span> 5</div>
         <div class="l2">2.2 Problématique et objectifs <span class="pt">.....................</span> 5</div>
-        <div class="l1">3. Description du jeu de données (ILPD) <span class="pt">..............</span> 6</div>
+        <div class="l1">3. Description du jeu de données <span class="pt">..............</span> 6</div>
         <div class="l2">3.1 Présentation et variables <span class="pt">....................</span> 6</div>
         <div class="l2">3.2 Analyse exploratoire <span class="pt">........................</span> 6</div>
         <div class="l1">4. Architecture de l'application <span class="pt">.....................</span> 8</div>
@@ -279,11 +279,11 @@ def build_html() -> str:
       <h3 style="margin-top:30px;">Fiche technique du projet</h3>
       <table class="nobreak">
         <tr><th style="width:32%">Élément</th><th>Description</th></tr>
-        <tr><td>Intitulé</td><td>BioMed AI Nexus — plateforme de prédiction des maladies du foie</td></tr>
+        <tr><td>Intitulé</td><td>HepatoScope — plateforme de prédiction des maladies du foie</td></tr>
         <tr><td>Problématique</td><td>Prédire une maladie hépatique à partir d'analyses biologiques et de données patient</td></tr>
         <tr><td>Type</td><td>Application web interactive (Streamlit, multi-pages)</td></tr>
         <tr><td>Langage</td><td>Python 3.13</td></tr>
-        <tr><td>Jeu de données</td><td>Indian Liver Patient Dataset — 583 enregistrements, 10 variables</td></tr>
+        <tr><td>Jeu de données</td><td>Liver Patient Dataset — 30 691 enregistrements (~19 000 nettoyés), 10 variables</td></tr>
         <tr><td>Modèles ML</td><td>Decision Tree, Random Forest, Logistic Regression, SVM, XGBoost</td></tr>
         <tr><td>Modèle DL</td><td>MobileNetV2 pré-entraîné (ImageNet) + Grad-CAM</td></tr>
         <tr><td>Meilleur modèle</td><td>''' + f"{BEST['name']} — AUC = {BEST['auc']:.3f}, Accuracy = {BEST['accuracy']:.1%}" + '''</td></tr>
@@ -383,12 +383,16 @@ def build_html() -> str:
     # ---------------- 3. Dataset ----------------
     A('''
     <section class="page">
-      <h1>3. Description du jeu de données (ILPD)</h1>
+      <h1>3. Description du jeu de données</h1>
       <h2>3.1 Présentation et variables</h2>
-      <p>Le jeu de données utilisé est l'<strong>Indian Liver Patient Dataset
-      (ILPD)</strong>, issu du dépôt UCI <em>Machine Learning Repository</em>. Il
-      regroupe <strong>583 enregistrements</strong> de patients collectés dans le
-      nord-est de l'Andhra Pradesh (Inde), décrits par dix variables cliniques.
+      <p>Le jeu de données utilisé est le <strong>Liver Patient Dataset</strong>,
+      une extension à grande échelle de l'Indian Liver Patient Dataset (ILPD).
+      Il comporte <strong>30 691 enregistrements</strong> de patients ; après
+      nettoyage et suppression des doublons exacts (afin d'éviter toute fuite
+      d'information entre l'entraînement et le test), <strong>19 368
+      enregistrements</strong> uniques sont conservés, décrits par dix variables
+      cliniques. Le volume bien plus important que l'ILPD original (583 lignes)
+      permet aux modèles d'atteindre des performances nettement supérieures.
       La variable cible originale (1 = patient hépatique, 2 = non-patient) est
       remappée en une cible binaire : <em>1 = Maladie du foie</em>,
       <em>0 = Pas de maladie</em>.</p>
@@ -411,7 +415,7 @@ def build_html() -> str:
       révèle un <strong>déséquilibre marqué des classes</strong> : environ 71&nbsp;%
       des patients sont étiquetés « malades ». Ce déséquilibre est déterminant pour
       le choix des métriques et la pondération des classes (chapitre&nbsp;6).</p>
-      ''' + img('fig_class_distribution.png', 'Figure 1 — Répartition des classes du jeu de données ILPD : 416 cas pathologiques contre 167 cas sains.', '60%') + '''
+      ''' + img('fig_class_distribution.png', 'Figure 1 — Répartition des classes (19 368 enregistrements nettoyés) : 13 811 cas pathologiques contre 5 557 cas sains.', '60%') + '''
       <p>La matrice de corrélation met en évidence des relations physiologiquement
       cohérentes : forte corrélation entre bilirubine totale et directe, et entre
       les deux transaminases ALT et AST. Ces redondances justifient la robustesse
@@ -447,7 +451,7 @@ flowchart TB
   CNN --> HIST
   HIST --> P5
       </div>
-      <p class="legende">Figure 3 — Flux applicatif global de BioMed AI Nexus.</p>
+      <p class="legende">Figure 3 — Flux applicatif global de HepatoScope.</p>
 
       <h2>4.2 Architecture modulaire en couches</h2>
       <p>Le code suit une <strong>architecture modulaire en trois couches</strong>
@@ -511,7 +515,7 @@ flowchart TB
 │   ├── styles.py           ← CSS, theme, cartes KPI
 │   └── logger.py           ← Journalisation rotative
 ├── data/                   ← ③ Donnees
-│   ├── ilpd_raw.csv        ← Jeu de donnees ILPD (583 lignes)
+│   ├── liver_raw.csv       ← Liver Patient Dataset (~19k lignes)
 │   ├── load_data.py        ← Script de telechargement du dataset
 │   └── historical_predictions.csv
 ├── models/                 ← ③ Modeles entraines + metriques
@@ -532,7 +536,7 @@ flowchart TB
       qui enchaîne trois étapes au sein d'un <code>Pipeline</code> scikit-learn :</p>
       <ul>
         <li><strong>Traitement des valeurs manquantes</strong> — le jeu de données
-        comporte quatre valeurs absentes pour le rapport albumine/globuline. Elles
+        comporte plusieurs milliers de valeurs absentes réparties sur les variables. Elles
         sont remplacées par <strong>imputation médiane</strong>, robuste aux
         valeurs extrêmes fréquentes dans les analyses biologiques.</li>
         <li><strong>Encodage de la variable catégorielle</strong> — la variable
@@ -565,7 +569,7 @@ flowchart TB
       hyperparamètres, puis l'évaluation et la persistance.</p>
       <div class="mermaid">
 flowchart LR
-  D[("ILPD<br/>583 lignes")] --> CL["Nettoyage<br/>+ cible binaire"]
+  D[("Liver Dataset<br/>~19k lignes")] --> CL["Nettoyage<br/>+ cible binaire"]
   CL --> SP["Split stratifie<br/>80% / 20%"]
   SP --> PRE["Preprocesseur<br/>(fit sur train)"]
   PRE --> GS["GridSearchCV<br/>CV stratifiee 5 plis - score AUC"]
@@ -623,9 +627,12 @@ flowchart LR
       ''' + ranking_table() + '''
       <p>Le meilleur modèle est <strong>''' + f"{BEST['name']}" + '''</strong>
       (AUC = ''' + f"{BEST['auc']:.3f}" + ''', F1 = ''' + f"{BEST['f1']:.3f}" + ''',
-      Accuracy = ''' + f"{BEST['accuracy']:.1%}" + '''), des performances conformes
-      à l'état de l'art rapporté dans la littérature sur l'ILPD (Accuracy ≈ 0,70–0,75,
-      AUC ≈ 0,75–0,84).</p>
+      Accuracy = ''' + f"{BEST['accuracy']:.1%}" + '''). Les modèles ensemblistes
+      à base d'arbres (Random Forest, XGBoost) exploitent pleinement le volume et
+      la structure du jeu de données pour atteindre une accuracy proche de
+      99&nbsp;%, tandis que les modèles linéaires (SVM, régression logistique)
+      plafonnent autour de 70&nbsp;%, ce qui illustre le caractère fortement non
+      linéaire de la frontière de décision.</p>
       ''' + img('fig_metrics_comparison.png', 'Figure 6 — Comparaison des cinq modèles sur les cinq métriques.', '92%') + '''
 
       <h2>7.2 Courbes ROC et matrice de confusion</h2>
@@ -730,13 +737,13 @@ flowchart LR
 
     <section class="page">
       <h1>12. Conclusion</h1>
-      <p>BioMed AI Nexus démontre une chaîne complète d'intelligence artificielle
+      <p>HepatoScope démontre une chaîne complète d'intelligence artificielle
       biomédicale : de l'acquisition et du prétraitement des données à la prédiction
       expliquée, en passant par l'entraînement, l'optimisation et l'évaluation
       comparative de cinq modèles de Machine Learning, complétés par un module de
       Deep Learning d'analyse d'images. L'application, modulaire, robuste et dotée
       d'une interface moderne, atteint des performances conformes à l'état de l'art
-      sur le jeu de données ILPD (AUC du meilleur modèle = ''' + f"{BEST['auc']:.3f}" + ''')
+      sur ce jeu de données (AUC du meilleur modèle = ''' + f"{BEST['auc']:.3f}" + ''')
       tout en restant pleinement interprétable.</p>
       <p>Au-delà des résultats quantitatifs, ce projet aura permis de mettre en
       œuvre, de bout en bout, une démarche d'ingénierie rigoureuse : analyse du
@@ -747,7 +754,7 @@ flowchart LR
 
       <h1 style="margin-top:34px;">Webographie</h1>
       <ul>
-        <li>UCI Machine Learning Repository — <em>ILPD (Indian Liver Patient
+        <li>Kaggle / UCI — <em>Liver Patient Dataset (lignée ILPD, Indian Liver Patient
         Dataset)</em>, archive.ics.uci.edu.</li>
         <li>Documentation Scikit-Learn — scikit-learn.org.</li>
         <li>Documentation XGBoost — xgboost.readthedocs.io.</li>

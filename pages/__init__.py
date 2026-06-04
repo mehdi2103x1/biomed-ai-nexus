@@ -1,5 +1,5 @@
 """
-Page modules for BioMed AI Nexus.
+Page modules for HepatoScope.
 
 Each module exposes a single ``render(ctx)`` function. ``app.py`` builds a small
 ``ctx`` dict (model manager, dataset, theme flag) and routes the sidebar choice

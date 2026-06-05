@@ -91,19 +91,25 @@ def inject_css(dark: bool = True) -> None:
           background-image:{_GRAIN}; background-size:160px; opacity:{grain_opacity};
         }}
         .block-container {{ padding-top: 1.4rem; padding-bottom: 3rem; max-width: 1180px; }}
-        /* hide Streamlit chrome: main menu, footer, status, and the Deploy button */
+        /* hide Streamlit chrome: main menu, footer, status, Deploy button AND the
+           sidebar collapse/expand controls — the sidebar is permanently open, so it
+           can never get stuck closed. */
         #MainMenu, footer, [data-testid="stStatusWidget"],
         [data-testid="stToolbar"], [data-testid="stDeployButton"],
-        .stDeployButton, [data-testid="stToolbarActions"] {{ display: none !important; }}
-        /* transparent header, but keep it functional so the sidebar expand arrow
-           (shown when the sidebar is collapsed) renders and stays clickable */
-        [data-testid="stHeader"] {{ background: transparent; }}
-        [data-testid="stSidebarCollapsedControl"], [data-testid="collapsedControl"] {{
-          display: flex !important; visibility: visible !important; opacity: 1 !important;
-          z-index: 1000;
+        .stDeployButton, [data-testid="stToolbarActions"],
+        [data-testid="stSidebarCollapseButton"],
+        [data-testid="stSidebarCollapsedControl"],
+        [data-testid="collapsedControl"] {{ display: none !important; }}
+        [data-testid="stHeader"] {{ background: transparent; height: 0; }}
+        /* force the sidebar to stay visible even if a previous session collapsed it */
+        section[data-testid="stSidebar"] {{
+          transform: none !important; visibility: visible !important;
+          margin-left: 0 !important;
+          width: 17rem !important; min-width: 17rem !important;
         }}
-        [data-testid="stSidebarCollapsedControl"] button,
-        [data-testid="collapsedControl"] button {{ color: var(--text) !important; }}
+        section[data-testid="stSidebar"][aria-expanded="false"] {{
+          transform: none !important; margin-left: 0 !important;
+        }}
 
         /* equal-height cards: stretch columns so KPI/cards align on a row */
         [data-testid="stHorizontalBlock"] {{ align-items: stretch; }}

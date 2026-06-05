@@ -127,6 +127,19 @@ def inject_css(dark: bool = False) -> None:
         .block-container h2 {{ font-size:1.5rem; margin-top:.4rem; }}
         .block-container h3 {{ font-size:1.18rem; }}
         a {{ color: var(--primary); text-decoration: none; }}
+        /* CRITICAL: Streamlit's static config theme is light, so in dark mode native
+           text would stay dark and vanish. Force the active theme text colour onto all
+           body text, widget labels and captions. */
+        [data-testid="stMarkdownContainer"] p, [data-testid="stMarkdownContainer"] li,
+        [data-testid="stMarkdownContainer"] strong, [data-testid="stMarkdownContainer"] em,
+        [data-testid="stWidgetLabel"], [data-testid="stWidgetLabel"] p,
+        [data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] p,
+        .stRadio label, .stRadio label p, .stCheckbox label, .stToggle label,
+        [data-baseweb="checkbox"], [data-baseweb="checkbox"] div,
+        .stNumberInput label, .stTextInput label, .stSelectbox label,
+        .stSlider label, .stForm label, [data-testid="stExpander"] summary {{
+          color: var(--text) !important;
+        }}
 
         /* ---------- Sidebar (clean, full-width; native collapse arrow works) ---------- */
         section[data-testid="stSidebar"] {{

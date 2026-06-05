@@ -13,7 +13,7 @@ from __future__ import annotations
 import pandas as pd
 import streamlit as st
 
-from utils.styles import hero, render_kpis
+from utils.styles import df_table, hero, render_kpis, section
 from utils.visualization import (
     confusion_heatmap, metrics_grouped_bar, roc_curves, training_time_bar,
 )
@@ -36,7 +36,7 @@ def render(ctx: dict) -> None:
     # --- Headline: best model -------------------------------------------- #
     if ranking:
         best = ranking[0]
-        st.markdown("#### 🏆 Best model")
+        section("Best model")
         render_kpis([
             {"icon": "🥇", "value": best["name"], "label": "Top performer"},
             {"icon": "🎯", "value": f"{best['accuracy']:.1%}", "label": "Accuracy"},
@@ -45,7 +45,7 @@ def render(ctx: dict) -> None:
         ])
 
     # --- Comparison charts ----------------------------------------------- #
-    st.markdown("#### 📊 Comparative metrics")
+    section("Comparative metrics")
     st.plotly_chart(metrics_grouped_bar(models), use_container_width=True)
 
     c1, c2 = st.columns(2)
@@ -55,19 +55,17 @@ def render(ctx: dict) -> None:
         st.plotly_chart(training_time_bar(models), use_container_width=True)
 
     # --- Ranking table --------------------------------------------------- #
-    st.markdown("#### 🏁 Model ranking")
-    rank_df = pd.DataFrame(ranking)[
+    section("Model ranking")
+    rdf = pd.DataFrame(ranking)[
         ["rank", "name", "accuracy", "precision", "recall", "f1", "auc"]
-    ]
-    st.dataframe(
-        rank_df.style.format({c: "{:.3f}" for c in
-                              ["accuracy", "precision", "recall", "f1", "auc"]})
-        .background_gradient(subset=["f1", "auc"], cmap="Greens"),
-        use_container_width=True, hide_index=True,
-    )
+    ].copy()
+    for c in ["accuracy", "precision", "recall", "f1", "auc"]:
+        rdf[c] = rdf[c].map(lambda v: f"{v:.3f}")
+    rdf.columns = ["Rank", "Model", "Accuracy", "Precision", "Recall", "F1", "AUC"]
+    df_table(rdf, highlight_first=True)
 
     # --- Per-model deep dive --------------------------------------------- #
-    st.markdown("#### 🔬 Per-model detail")
+    section("Per-model detail")
     names = {m["name"]: k for k, m in models.items()}
     choice = st.selectbox("Select a model", list(names.keys()))
     m = models[names[choice]]
@@ -85,8 +83,8 @@ def render(ctx: dict) -> None:
                         use_container_width=True)
     with d2:
         st.markdown("**Classification report**")
-        report = pd.DataFrame(m["report"]).transpose()
-        st.dataframe(report.style.format("{:.3f}"), use_container_width=True)
+        report = pd.DataFrame(m["report"]).transpose().round(3)
+        df_table(report, index=True, index_label="")
 
     if m.get("best_params"):
         st.markdown("**Best hyper-parameters** (GridSearchCV)")

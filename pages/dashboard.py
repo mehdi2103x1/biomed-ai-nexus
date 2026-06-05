@@ -12,7 +12,7 @@ from __future__ import annotations
 import streamlit as st
 
 from utils.history import clear_history, history_kpis, load_history
-from utils.styles import hero, render_kpis
+from utils.styles import df_table, hero, render_kpis, section
 from utils.visualization import (
     confidence_distribution, history_outcome_bar, history_timeline,
 )
@@ -62,11 +62,14 @@ def render(ctx: dict) -> None:
         st.plotly_chart(fig, use_container_width=True)
 
     # --- History table ---------------------------------------------------- #
-    st.markdown("#### 🗂️ Prediction history")
+    section("Prediction history")
     view = history.copy()
     if "timestamp" in view.columns:
         view = view.sort_values("timestamp", ascending=False)
-    st.dataframe(view, use_container_width=True, hide_index=True)
+    if len(view) > 50:
+        st.caption(f"Showing the 50 most recent of {len(view)} predictions "
+                   "(export the full history below).")
+    df_table(view.head(50))
 
     cdl, cclr = st.columns([1, 1])
     with cdl:

@@ -22,9 +22,9 @@ import streamlit as st
 
 from config import APP_TITLE, AUTHOR_BYLINE
 
-# Claude-inspired warm theme: ivory/cream canvas, terracotta accent, charcoal
-# text. Every component reads from these CSS custom properties.
-_THEME_COLORS = {
+# Claude-inspired warm palettes. Light = ivory/cream canvas; Dark = warm charcoal
+# (not pure black). Both share the terracotta accent. Components read the vars.
+_LIGHT_COLORS = {
     "bg": "#faf9f5", "bg2": "#f2efe6", "surface": "#ffffff", "surface2": "#f6f4ec",
     "border": "#e7e3d6", "border_soft": "#efece1",
     "text": "#2b2a26", "muted": "#73716a", "faint": "#a8a59a",
@@ -33,6 +33,16 @@ _THEME_COLORS = {
     "ok": "#5b8266", "warn": "#b7791f", "high": "#c97a3c",
     "shadow": "0 16px 38px -26px rgba(70,55,40,.28)",
     "glow": "rgba(204,120,92,.10)",
+}
+_DARK_COLORS = {
+    "bg": "#262624", "bg2": "#1f1e1c", "surface": "#30302d", "surface2": "#3a3935",
+    "border": "#423f3a", "border_soft": "#36342f",
+    "text": "#ece9e0", "muted": "#a8a49a", "faint": "#78746b",
+    "primary": "#d18a6e", "primary_deep": "#cc785c", "primary_soft": "rgba(209,138,110,.16)",
+    "danger": "#e0796b", "danger_soft": "rgba(224,121,107,.16)",
+    "ok": "#7faa86", "warn": "#d6a44e", "high": "#dd9a5e",
+    "shadow": "0 18px 44px -22px rgba(0,0,0,.70)",
+    "glow": "rgba(209,138,110,.13)",
 }
 
 # A faint SVG grain overlay for premium depth (data-URI, no external request).
@@ -45,10 +55,10 @@ _GRAIN = (
 )
 
 
-def inject_css(dark: bool = True) -> None:
-    """Inject the full stylesheet (Claude-inspired warm theme)."""
-    t = _THEME_COLORS
-    grain_opacity = ".018"
+def inject_css(dark: bool = False) -> None:
+    """Inject the full stylesheet (Claude-inspired warm theme, light or dark)."""
+    t = _DARK_COLORS if dark else _LIGHT_COLORS
+    grain_opacity = ".028" if dark else ".018"
     st.markdown(
         f"""
         <style>
@@ -178,6 +188,24 @@ def inject_css(dark: bool = True) -> None:
         [data-testid="stMetric"] {{ background: var(--surface); border:1px solid var(--border);
           border-radius:var(--r); padding:1rem 1.1rem; }}
         .stAlert {{ border-radius:12px; border:1px solid var(--border); }}
+        /* themed dropdown popover/menu so it matches in dark mode */
+        [data-baseweb="popover"] [data-baseweb="menu"], [data-baseweb="popover"] ul {{
+          background: var(--surface) !important; border:1px solid var(--border) !important;
+        }}
+        [data-baseweb="popover"] li {{ color: var(--text) !important; }}
+
+        /* ---------- Themed HTML tables (.tbl) — fully theme-aware (light & dark) ---------- */
+        .tbl-wrap {{ overflow-x:auto; border:1px solid var(--border); border-radius:12px; }}
+        table.tbl {{ width:100%; border-collapse:collapse; font-family:var(--sans); font-size:.9rem; }}
+        table.tbl th {{ background: var(--surface2); color: var(--muted); text-align:left;
+          font-weight:600; padding:.6rem .8rem; border-bottom:1px solid var(--border);
+          text-transform:uppercase; font-size:.72rem; letter-spacing:.04em; }}
+        table.tbl td {{ padding:.55rem .8rem; border-bottom:1px solid var(--border-soft);
+          color: var(--text); }}
+        table.tbl tbody tr:last-child td {{ border-bottom:0; }}
+        table.tbl tbody tr:hover td {{ background: var(--primary-soft); }}
+        table.tbl tr.tbl-top td {{ background: var(--primary-soft); font-weight:600; }}
+        table.tbl td.num {{ font-family: var(--mono); }}
 
         /* ---------- Hero ---------- */
         .hero {{
@@ -308,3 +336,25 @@ def result_card(icon: str, title: str, subtitle: str, positive: bool) -> None:
 def pills(items: list[str]) -> None:
     st.markdown("".join(f"<span class='pill'>{i}</span>" for i in items),
                 unsafe_allow_html=True)
+
+
+def df_table(df, *, index: bool = False, highlight_first: bool = False,
+             index_label: str = "") -> None:
+    """Render a DataFrame as a fully theme-aware HTML table (light & dark).
+
+    Used instead of ``st.dataframe`` where the canvas grid would not follow the
+    custom warm theme. ``highlight_first`` shades the first row (e.g. best model).
+    """
+    cols = ([index_label] if index else []) + [str(c) for c in df.columns]
+    head = "".join(f"<th>{c}</th>" for c in cols)
+    body = ""
+    for i, (idx, row) in enumerate(df.iterrows()):
+        cls = " class='tbl-top'" if highlight_first and i == 0 else ""
+        cells = f"<td><b>{idx}</b></td>" if index else ""
+        cells += "".join(f"<td>{v}</td>" for v in row)
+        body += f"<tr{cls}>{cells}</tr>"
+    st.markdown(
+        f"<div class='tbl-wrap'><table class='tbl'><thead><tr>{head}</tr></thead>"
+        f"<tbody>{body}</tbody></table></div>",
+        unsafe_allow_html=True,
+    )

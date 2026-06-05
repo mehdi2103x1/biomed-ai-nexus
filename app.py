@@ -60,12 +60,12 @@ def get_dataset():
         return None
 
 
-def _sidebar() -> str:
+def _sidebar() -> tuple[str, bool]:
     with st.sidebar:
         st.markdown(
             f"<div style='display:flex;align-items:center;gap:.7rem;padding:.2rem 0 .1rem'>"
             f"<div style='font-size:2rem;line-height:1'>{APP_ICON}</div>"
-            f"<div><div style=\"font-family:'Spectral',serif;font-weight:700;"
+            f"<div><div style=\"font-family:'Fraunces',serif;font-weight:700;"
             f"font-size:1.34rem;line-height:1.05;letter-spacing:-.01em\">{APP_TITLE}</div>"
             f"<div style='font-size:.72rem;color:var(--muted);letter-spacing:.02em'>"
             f"{AUTHOR_BYLINE}</div></div></div>",
@@ -79,6 +79,7 @@ def _sidebar() -> str:
             label_visibility="collapsed",
         )
         st.divider()
+        dark = st.toggle("🌙  Dark mode", value=False)
         n_loaded = len(get_manager().estimators)
         st.markdown(
             f"<div style='font-size:.74rem;color:var(--muted);line-height:1.7'>"
@@ -86,18 +87,18 @@ def _sidebar() -> str:
             f"models loaded<br>{AUTHOR_PROGRAM}</div>",
             unsafe_allow_html=True,
         )
-        return choice
+        return choice, dark
 
 
 def main() -> None:
-    choice = _sidebar()
-    inject_css(dark=True)
-    visualization.set_theme(False)   # light (cream) chart theme
+    choice, dark = _sidebar()
+    inject_css(dark=dark)
+    visualization.set_theme(dark)
 
     ctx = {
         "manager": get_manager(),
         "dataset": get_dataset(),
-        "dark": True,
+        "dark": dark,
     }
 
     # The Home/Dashboard pages need the dataset; guard gracefully.

@@ -18,7 +18,7 @@ from config import FEATURE_META
 from utils.history import append_record
 from utils.pdf_report import build_prediction_pdf
 from utils.preprocessing import validate_form
-from utils.styles import hero, render_kpis, result_card, section
+from utils.styles import df_table, hero, render_kpis, result_card, section
 from utils.visualization import (
     feature_importance_bar, model_comparison_bar, probability_gauge,
 )
@@ -135,7 +135,7 @@ def render(ctx: dict) -> None:
         show = comparison[["Model", "Prediction", "Disease Probability", "Confidence"]].copy()
         show["Disease Probability"] = show["Disease Probability"].map(lambda v: f"{v:.1%}")
         show["Confidence"] = show["Confidence"].map(lambda v: f"{v:.1%}")
-        st.dataframe(show, use_container_width=True, hide_index=True)
+        df_table(show)
     with cc2:
         st.plotly_chart(model_comparison_bar(comparison), use_container_width=True)
 

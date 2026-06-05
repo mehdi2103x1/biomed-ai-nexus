@@ -22,27 +22,17 @@ import streamlit as st
 
 from config import APP_TITLE, AUTHOR_BYLINE
 
-# Two cohesive palettes toggled by the sidebar switch. Only the CSS custom
-# properties change between them — every component reads from the variables.
-_DARK = {
-    "bg": "#0a1020", "bg2": "#0c1426", "surface": "#111c32", "surface2": "#172339",
-    "border": "#243450", "border_soft": "#1b2740",
-    "text": "#e9eef7", "muted": "#94a4bd", "faint": "#5e6f8a",
-    "primary": "#1ec8b4", "primary_deep": "#14a896", "primary_soft": "rgba(30,200,180,.14)",
-    "danger": "#fb6f86", "danger_soft": "rgba(251,111,134,.14)",
-    "ok": "#34c98a", "warn": "#e7b23e", "high": "#f6894a",
-    "shadow": "0 20px 46px -24px rgba(0,0,0,.85)",
-    "glow": "rgba(30,200,180,.18)",
-}
-_LIGHT = {
-    "bg": "#f3f4f1", "bg2": "#eceee9", "surface": "#ffffff", "surface2": "#f7f8f5",
-    "border": "#e1e4dd", "border_soft": "#ebeee8",
-    "text": "#17222e", "muted": "#5d6b78", "faint": "#90a0ad",
-    "primary": "#0d9488", "primary_deep": "#0f766e", "primary_soft": "rgba(13,148,136,.10)",
-    "danger": "#d4455d", "danger_soft": "rgba(212,69,93,.10)",
-    "ok": "#1f9d6b", "warn": "#b7791f", "high": "#ea7a3c",
-    "shadow": "0 16px 38px -26px rgba(20,40,60,.45)",
-    "glow": "rgba(13,148,136,.12)",
+# Claude-inspired warm theme: ivory/cream canvas, terracotta accent, charcoal
+# text. Every component reads from these CSS custom properties.
+_THEME_COLORS = {
+    "bg": "#faf9f5", "bg2": "#f2efe6", "surface": "#ffffff", "surface2": "#f6f4ec",
+    "border": "#e7e3d6", "border_soft": "#efece1",
+    "text": "#2b2a26", "muted": "#73716a", "faint": "#a8a59a",
+    "primary": "#cc785c", "primary_deep": "#b8623f", "primary_soft": "rgba(204,120,92,.12)",
+    "danger": "#bd4636", "danger_soft": "rgba(189,70,54,.10)",
+    "ok": "#5b8266", "warn": "#b7791f", "high": "#c97a3c",
+    "shadow": "0 16px 38px -26px rgba(70,55,40,.28)",
+    "glow": "rgba(204,120,92,.10)",
 }
 
 # A faint SVG grain overlay for premium depth (data-URI, no external request).
@@ -56,13 +46,13 @@ _GRAIN = (
 
 
 def inject_css(dark: bool = True) -> None:
-    """Inject the full stylesheet, parameterised by the active theme."""
-    t = _DARK if dark else _LIGHT
-    grain_opacity = ".035" if dark else ".025"
+    """Inject the full stylesheet (Claude-inspired warm theme)."""
+    t = _THEME_COLORS
+    grain_opacity = ".018"
     st.markdown(
         f"""
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
         :root {{
           --bg:{t['bg']}; --bg2:{t['bg2']}; --surface:{t['surface']}; --surface2:{t['surface2']};
@@ -72,8 +62,8 @@ def inject_css(dark: bool = True) -> None:
           --danger:{t['danger']}; --danger-soft:{t['danger_soft']};
           --ok:{t['ok']}; --warn:{t['warn']}; --high:{t['high']};
           --shadow:{t['shadow']}; --glow:{t['glow']};
-          --serif:'Spectral',Georgia,serif;
-          --sans:'IBM Plex Sans',-apple-system,sans-serif;
+          --serif:'Fraunces',Georgia,serif;
+          --sans:'Hanken Grotesk',-apple-system,sans-serif;
           --mono:'IBM Plex Mono',ui-monospace,monospace;
           --r:14px;
         }}
@@ -81,8 +71,8 @@ def inject_css(dark: bool = True) -> None:
         /* ---------- Canvas ---------- */
         .stApp {{
           background:
-            radial-gradient(900px 520px at 88% -8%, var(--glow), transparent 60%),
-            linear-gradient(180deg, var(--bg2), var(--bg) 38%);
+            radial-gradient(820px 480px at 92% -10%, var(--glow), transparent 55%),
+            var(--bg);
           color: var(--text);
           font-family: var(--sans);
         }}
@@ -153,7 +143,7 @@ def inject_css(dark: bool = True) -> None:
         /* ---------- Buttons ---------- */
         .stButton > button, .stDownloadButton > button, .stFormSubmitButton > button {{
           font-family: var(--sans); font-weight:600; border-radius:11px;
-          border:1px solid var(--primary); background: var(--primary); color:#04201d;
+          border:1px solid var(--primary); background: var(--primary); color:#fdfbf7;
           padding:.5rem 1.1rem; transition: all .16s ease; box-shadow: 0 8px 20px -12px var(--primary);
         }}
         .stButton > button:hover, .stDownloadButton > button:hover, .stFormSubmitButton > button:hover {{

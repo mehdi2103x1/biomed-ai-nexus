@@ -92,7 +92,7 @@ def _sidebar() -> str:
 def main() -> None:
     choice = _sidebar()
     inject_css(dark=True)
-    visualization.set_theme(True)
+    visualization.set_theme(False)   # light (cream) chart theme
 
     ctx = {
         "manager": get_manager(),

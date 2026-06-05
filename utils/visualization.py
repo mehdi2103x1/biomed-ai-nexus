@@ -29,7 +29,7 @@ _THEME = {
     "font": "#cbd5e1",
     "grid": "rgba(148,163,184,.16)",
 }
-_FONT_FAMILY = "IBM Plex Sans, -apple-system, sans-serif"
+_FONT_FAMILY = "Hanken Grotesk, -apple-system, sans-serif"
 
 
 def set_theme(dark: bool = True) -> None:
@@ -37,9 +37,9 @@ def set_theme(dark: bool = True) -> None:
     if dark:
         _THEME.update(template="plotly_dark", font="#cbd5e1",
                       grid="rgba(148,163,184,.16)")
-    else:
-        _THEME.update(template="plotly_white", font="#475569",
-                      grid="rgba(71,85,105,.14)")
+    else:  # warm light (Claude cream) theme
+        _THEME.update(template="plotly_white", font="#57534e",
+                      grid="rgba(120,113,100,.16)")
 
 
 def _base_layout(fig: go.Figure, title: str = "", height: int = 380) -> go.Figure:

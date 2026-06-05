@@ -1,18 +1,18 @@
-# Streamlit configuration for BioMed AI Nexus
+# Streamlit configuration for HepatoScope
 # ---------------------------------------------------------------------------
-# We use a *custom* radio-based sidebar router in app.py. Disabling the
-# automatic multipage navigation stops Streamlit from also listing the modules
-# inside pages/ as separate auto-pages (which would duplicate the menu).
+# Custom radio-based sidebar router in app.py — disable the automatic multipage
+# navigation so Streamlit doesn't also list pages/ modules as auto-pages.
 [client]
 showSidebarNavigation = false
 showErrorDetails = true
 
+# Claude-inspired warm light theme (cream canvas, terracotta accent, charcoal text).
 [theme]
-base = "dark"
-primaryColor = "#16b8a6"
-backgroundColor = "#0b1118"
-secondaryBackgroundColor = "#141d28"
-textColor = "#e9eff5"
+base = "light"
+primaryColor = "#cc785c"
+backgroundColor = "#faf9f5"
+secondaryBackgroundColor = "#f2efe6"
+textColor = "#2b2a26"
 font = "sans serif"
 
 [server]
